@@ -18,16 +18,18 @@ import dj_database_url
 #Connect to dotenv API
 load_dotenv()
 
-# Access Key
-ACCESS_KEY = os.environ.get("ACCESS_KEY", "")
-if not ACCESS_KEY and not DEBUG:
-    raise ValueError("ACCESS_KEY must be set in production")
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
+# Access Key
+ACCESS_KEY = os.getenv("ACCESS_KEY", "")
+if not ACCESS_KEY and not DEBUG:
+    raise RuntimeError("ACCESS_KEY must be set in production")
 
 # Secret Key
-SECRET_KEY = os.environ.get(
+SECRET_KEY = os.getenv(
     "SECRET_KEY",
-    "django-insecure-dev-key-change-this"
+    "django-insecure-dev-only-change-later"
 )
 
 # API Key 
@@ -48,9 +50,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-1f%27z#&m_v^m1s09=*pn=)l@i@6sek#o!h2k!-$bu(&5hxn#6')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
 
 CHANNEL_LAYERS = {
     "default": {
