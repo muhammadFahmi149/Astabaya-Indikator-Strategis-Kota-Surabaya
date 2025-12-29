@@ -1,0 +1,1196 @@
+{% extends 'dashboard/dashboard.html' %} {% load static %} {% block dashboard_content %}
+<div class="infographics-page">
+  <!-- Page Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="font-weight-bold mb-2">Infografis BPS Kota Surabaya</h3>
+          <p class="text-muted mb-0">Total: <span class="badge bg-primary">{{ countInfographic }}</span> infografis</p>
+        </div>
+        <button class="btn btn-primary" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i> Refresh Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search -->
+  <div class="row mb-4">
+    <div class="col-md-8 mb-3 mb-md-0">
+      <div class="input-group shadow-sm">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <input type="text" class="form-control border-start-0 ps-0" id="searchInput" placeholder="Cari infografis berdasarkan judul..." />
+      </div>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end gap-2">
+      <div class="btn-group shadow-sm" role="group">
+        <button type="button" class="btn btn-outline-primary active" onclick="changeView('grid')"><i class="bi bi-grid-3x3"></i> <span class="d-none d-sm-inline">Grid</span></button>
+        <button type="button" class="btn btn-outline-primary" onclick="changeView('list')"><i class="bi bi-list"></i> <span class="d-none d-sm-inline">List</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid View -->
+  <div id="gridView" class="row">
+    {% if dataInpographic %} {% for infographic in dataInpographic %}
+    <div class="col-6 col-md-4 col-lg-3 mb-4 infographic-item" data-infographic-id="{{ infographic.id }}">
+      <div class="card infographic-card h-100 hover-shadow" onclick="showInfographicDetail({{ infographic.id }})">
+        <div class="card-img-wrapper" style="background: #e9ecef; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; height: 280px;">
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23f0f0f0' width='400' height='300'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-family='Arial'%3ELoading...%3C/text%3E%3C/svg%3E"
+            data-src="{{ infographic.image }}"
+            class="card-img-top lazy-load"
+            alt="{{ infographic.title }}"
+            style="width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; transition: transform 0.3s ease; display: block;"
+            loading="lazy"
+          />
+          <div class="card-overlay"></div>
+        </div>
+        <div class="card-body d-flex flex-column p-3">
+          <h6 class="card-title mb-3" style="font-size: 0.9rem; line-height: 1.4; font-weight: 500;" title="{{ infographic.title }}">{{ infographic.title }}</h6>
+        </div>
+        <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">BPS Kota Surabaya</small>
+            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); showInfographicDetail({{ infographic.id }})">
+              <i class="bi bi-eye"></i> Lihat
+            </button>
+            
+            {% if user.is_authenticated %}
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary bookmark-btn {% if infographic.bookmark_id %}bookmarked{% endif %}"
+              style="min-width: 40px"
+              data-content-type="infographic"
+              data-object-id="{{ infographic.id }}"
+              data-bookmark-id="{{ infographic.bookmark_id|default:'' }}"
+              onclick="event.stopPropagation(); toggleBookmark(this);"
+              title="Bookmark"
+            >
+              <i class="bi {% if infographic.bookmark_id %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+            </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="col-12">
+      <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> Belum ada data infografis.
+        <a href="{% url 'sync-bps-infographics' %}" class="alert-link">Sinkronkan data</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- List View (Hidden by default) -->
+  <div id="listView" class="d-none">
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 80px">Preview</th>
+                <th>Judul</th>
+                <th style="width: 150px">Tanggal</th>
+                <th style="width: 150px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for infographic in dataInpographic %}
+              <tr>
+                <td>
+                  <img
+                    src="{{ infographic.image }}"
+                    alt="{{ infographic.title }}"
+                    style="width: 60px; height: 60px; object-fit: cover; cursor: pointer; border-radius: 4px;"
+                    onclick="showInfographicDetail({{ infographic.id }})"
+                  />
+                </td>
+                <td class="align-middle">
+                  <strong>{{ infographic.title }}</strong>
+                </td>
+                <td class="align-middle">
+                  <small class="text-muted">-</small>
+                </td>
+                <td class="align-middle">
+                  <button class="btn btn-sm btn-info" onclick="showInfographicDetail({{ infographic.id }})"><i class="bi bi-eye"></i> View</button>
+                  <a href="{% url 'download-infographic' infographic.id %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-download"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  {% if dataInpographic.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if dataInpographic.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ dataInpographic.previous_page_number }}"> <i class="bi bi-chevron-left"></i> Previous </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
+      </li>
+      {% endif %} {% for num in dataInpographic.paginator.page_range %} {% if dataInpographic.number == num %}
+      <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num > dataInpographic.number|add:'-3' and num < dataInpographic.number|add:'3' %}
+      <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+      {% endif %} {% endfor %} {% if dataInpographic.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ dataInpographic.next_page_number }}"> Next <i class="bi bi-chevron-right"></i> </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
+      </li>
+      {% endif %}
+    </ul>
+    <p class="text-center text-muted small">Showing {{ dataInpographic.start_index }} to {{ dataInpographic.end_index }} of {{ dataInpographic.paginator.count }} infographics</p>
+  </nav>
+  {% endif %}
+</div>
+
+<!-- Modal for Detail -->
+<div class="modal fade" id="infographicDetailModal" tabindex="-1" aria-labelledby="infographicDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+    <div class="modal-content">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title" id="infographicDetailModalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="row g-0 h-100">
+          <!-- Main Infographic -->
+          <div class="col-lg-8 border-end">
+            <div class="text-center" style="background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 1; min-height: 0; padding: 1rem 0;">
+              <img id="detailModalImage" src="" alt="" class="img-fluid" style="max-width: 100%; max-height: calc(100vh - 280px); width: auto; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+            </div>
+            <div class="p-3 border-top bg-white" style="flex-shrink: 0;">
+              <div class="d-flex justify-content-end align-items-center gap-2">
+                {% if user.is_authenticated %}
+                <button
+                  id="modalInfographicBookmarkBtn"
+                  class="btn btn-outline-secondary btn-sm bookmark-btn"
+                  data-content-type="infographic"
+                  data-object-id=""
+                  data-bookmark-id=""
+                  onclick="toggleBookmark(this)"
+                >
+                  <i class="bi bi-bookmark"></i>
+                  <span class="d-none d-sm-inline">Bookmark</span>
+                </button>
+                {% endif %}
+                <a id="detailModalDownload" href="" class="btn btn-primary btn-sm download-infographic-btn" data-infographic-id="" data-infographic-title="">
+                  <i class="bi bi-download"></i> Unduh
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Related Infographics -->
+          <div class="col-lg-4">
+            <div class="p-3">
+              <h6 class="fw-bold mb-3">Lainnya</h6>
+              <div id="relatedInfographics" class="d-flex flex-column gap-3" style="overflow: visible; padding-right: 10px;">
+                <!-- Related items will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden data container for all infographics -->
+<div id="allInfographicsData" style="display: none;">
+  {% for infographic in allInfographics %}
+  <div class="infographic-data-item" 
+       data-id="{{ infographic.id }}"
+       data-title="{{ infographic.title|escapejs }}"
+       data-image="{% if infographic.image %}{{ infographic.image }}{% else %}''{% endif %}"
+       data-date="{{ infographic.created_at|date:'d F Y'|default:'-' }}"
+       data-download="{% url 'download-infographic' infographic.id %}">
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+  .infographic-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    cursor: pointer;
+  }
+
+  .infographic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    border-color: #1F4068;
+  }
+
+  .card-img-wrapper {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    height: 280px;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .card-img-wrapper img {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    object-position: center;
+  }
+  
+  .infographic-card {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .infographic-card .card-body {
+    flex-grow: 1;
+  }
+  
+  @media (max-width: 768px) {
+    .card-img-wrapper {
+      height: 240px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .card-img-wrapper {
+      height: 200px;
+    }
+  }
+
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .infographic-card:hover .card-overlay {
+    opacity: 1;
+  }
+
+  .infographic-card:hover .card-img-top {
+    transform: scale(1.05);
+  }
+
+  .card-img-wrapper img {
+    transition: transform 0.3s ease;
+  }
+
+  /* Search Input Border Radius */
+  .input-group {
+    border-radius: 25rem !important;
+    overflow: hidden;
+  }
+
+  .input-group .input-group-text {
+    border-radius: 25rem 0 0 25rem !important;
+    border-right: none;
+    height: 47px;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .input-group #searchInput {
+    border-radius: 0 25rem 25rem 0 !important;
+    border-left: none;
+    height: 47px;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .input-group #searchInput:focus {
+    border-radius: 0 25rem 25rem 0 !important;
+    border-left: none;
+    box-shadow: none !important;
+    border-color: #ced4da !important;
+    outline: none !important;
+  }
+
+  .input-group:focus-within {
+    box-shadow: none !important;
+  }
+
+  /* View Switcher Button Group */
+  .btn-group {
+    border-radius: 25rem !important;
+    overflow: hidden;
+  }
+
+  .btn-group button:first-child {
+    border-top-left-radius: 25rem !important;
+    border-bottom-left-radius: 25rem !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+
+  .btn-group button:last-child {
+    border-top-right-radius: 25rem !important;
+    border-bottom-right-radius: 25rem !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+
+  /* View Switcher Button Active State */
+  .btn-group button.active {
+    background-color: #1F4068 !important;
+    border-color: #1F4068 !important;
+    color: white !important;
+  }
+
+  .btn-group button.active i {
+    color: white !important;
+  }
+
+  .btn-group button.active:hover {
+    background-color: #1a3554 !important;
+    border-color: #1a3554 !important;
+    color: white !important;
+  }
+
+  .btn-group button:not(.active) {
+    background-color: white !important;
+    border-color: #ced4da !important;
+    color: #1F4068 !important;
+  }
+
+  .btn-group button:not(.active) i {
+    color: #1F4068 !important;
+  }
+
+  .btn-group button:not(.active):hover {
+    background-color: #f8f9fa !important;
+    border-color: #ced4da !important;
+    color: #1F4068 !important;
+  }
+
+  /* Related Infographic Item */
+  .related-infographic-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .related-infographic-item:hover {
+    background-color: #f8f9fa;
+    border-color: #1F4068;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .related-infographic-item img {
+    width: 80px;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .related-infographic-item .content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .related-infographic-item .title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+  }
+
+
+  /* Modal Styles */
+  #infographicDetailModal .modal-dialog {
+    max-height: 95vh;
+    margin: 5rem auto 1.75rem auto;
+  }
+  
+  #infographicDetailModal .modal-content {
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  #infographicDetailModal .modal-header {
+    flex-shrink: 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  #infographicDetailModal .modal-body {
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+  }
+  
+  #infographicDetailModal .row.g-0 {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  #infographicDetailModal .col-lg-8 {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+  }
+  
+  #infographicDetailModal .col-lg-8 > div:first-child {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    max-height: 100%;
+  }
+  
+  #infographicDetailModal .col-lg-8 > div:last-child {
+    flex-shrink: 0;
+    z-index: 10;
+    position: relative;
+    background: white;
+  }
+  
+  #infographicDetailModal .col-lg-4 {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    height: 100%;
+  }
+  
+  #infographicDetailModal .col-lg-4 > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: visible;
+    padding-right: 10px;
+  }
+  
+  #infographicDetailModal #relatedInfographics {
+    overflow: visible !important;
+  }
+
+  @media (max-width: 991.98px) {
+    .col-lg-8.border-end {
+      border-right: none !important;
+      border-bottom: 1px solid #dee2e6;
+    }
+  }
+</style>
+
+<script>
+  // Store all infographics data
+  let allInfographicsData = [];
+  
+  // Initialize infographics data
+  document.addEventListener("DOMContentLoaded", function () {
+    const dataContainer = document.getElementById("allInfographicsData");
+    const items = dataContainer.querySelectorAll(".infographic-data-item");
+    
+    items.forEach((item) => {
+      let imageUrl = item.dataset.image || '';
+      // Remove quotes if present
+      if (imageUrl && (imageUrl.startsWith("'") && imageUrl.endsWith("'"))) {
+        imageUrl = imageUrl.slice(1, -1);
+      }
+      if (imageUrl && (imageUrl.startsWith('"') && imageUrl.endsWith('"'))) {
+        imageUrl = imageUrl.slice(1, -1);
+      }
+      
+      allInfographicsData.push({
+        id: parseInt(item.dataset.id),
+        title: item.dataset.title,
+        image: imageUrl,
+        date: item.dataset.date,
+        download: item.dataset.download
+      });
+    });
+
+    // Lazy loading for images
+    const lazyImages = document.querySelectorAll("img.lazy-load");
+
+    if ("IntersectionObserver" in window) {
+      const imageObserver = new IntersectionObserver(
+        (entries, observer) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              const src = img.dataset.src;
+
+              // Load image
+              const tempImg = new Image();
+              tempImg.onload = function () {
+                img.src = src;
+                img.classList.remove("lazy-load");
+                img.classList.add("loaded");
+              };
+              tempImg.onerror = function () {
+                img.src =
+                  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="18" font-family="Arial"%3EImage Not Available%3C/text%3E%3C/svg%3E';
+              };
+              tempImg.src = src;
+
+              imageObserver.unobserve(img);
+            }
+          });
+        },
+        { rootMargin: "50px" }
+      );
+
+      lazyImages.forEach((img) => imageObserver.observe(img));
+    } else {
+      lazyImages.forEach((img) => {
+        img.src = img.dataset.src;
+      });
+    }
+  });
+
+  // Search functionality
+  document.getElementById("searchInput").addEventListener("input", function (e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const items = document.querySelectorAll(".infographic-item");
+
+    items.forEach((item) => {
+      const title = item.querySelector(".card-title").textContent.toLowerCase();
+      if (title.includes(searchTerm)) {
+        item.style.display = "";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  });
+
+  // View switcher
+  function changeView(view) {
+    const gridView = document.getElementById("gridView");
+    const listView = document.getElementById("listView");
+    const buttons = document.querySelectorAll(".btn-group button");
+
+    buttons.forEach((btn) => btn.classList.remove("active"));
+
+    if (view === "grid") {
+      gridView.classList.remove("d-none");
+      listView.classList.add("d-none");
+      buttons[0].classList.add("active");
+    } else {
+      gridView.classList.add("d-none");
+      listView.classList.remove("d-none");
+      buttons[1].classList.add("active");
+    }
+  }
+
+  // Show infographic detail modal
+  function showInfographicDetail(infographicId) {
+    const infographic = allInfographicsData.find(item => item.id === infographicId);
+    
+    if (!infographic) {
+      alert("Infografis tidak ditemukan");
+      return;
+    }
+
+    // Set main infographic details
+    document.getElementById("infographicDetailModalTitle").textContent = infographic.title;
+    
+    // Get and process image URL
+    let imageUrl = infographic.image || '';
+    
+    // Debug: log the image URL
+    console.log('Original image URL:', imageUrl);
+    
+    // Clean and decode image URL
+    if (imageUrl) {
+      // Remove any HTML entities that might have been escaped
+      imageUrl = imageUrl.replace(/&amp;/g, '&');
+      imageUrl = imageUrl.replace(/&lt;/g, '<');
+      imageUrl = imageUrl.replace(/&gt;/g, '>');
+      imageUrl = imageUrl.replace(/&quot;/g, '"');
+      imageUrl = imageUrl.replace(/&#39;/g, "'");
+      
+      // Try to decode if it's URL encoded
+      try {
+        // Check if URL is encoded
+        if (imageUrl.includes('%')) {
+          // Try decoding multiple times in case of double encoding
+          let decoded = imageUrl;
+          for (let i = 0; i < 3; i++) {
+            try {
+              decoded = decodeURIComponent(decoded);
+            } catch (e) {
+              break;
+            }
+          }
+          imageUrl = decoded;
+        }
+      } catch (e) {
+        console.log('Error decoding URL:', e);
+        // If decoding fails, use original
+        imageUrl = infographic.image;
+      }
+    }
+    
+    console.log('Processed image URL:', imageUrl);
+    
+    const modalImage = document.getElementById("detailModalImage");
+    const placeholderImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"%3E%3Crect fill="%23f0f0f0" width="400" height="400"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="16" font-family="Arial"%3EImage not available%3C/text%3E%3C/svg%3E';
+    
+    // Show loading state
+    modalImage.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"%3E%3Crect fill="%23f5f5f5" width="400" height="400"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="16" font-family="Arial"%3ELoading...%3C/text%3E%3C/svg%3E';
+    modalImage.alt = infographic.title;
+    modalImage.style.display = 'block';
+    
+    // Preload image to check if it's valid
+    if (imageUrl && imageUrl.trim() !== '' && imageUrl !== 'null' && imageUrl !== 'undefined') {
+      // Remove any existing error handlers first
+      modalImage.onerror = null;
+      
+      // Try to load the image directly first
+      const img = new Image();
+      
+      img.onload = function() {
+        console.log('Image loaded successfully:', imageUrl);
+        // Image loaded successfully
+        modalImage.src = imageUrl;
+        modalImage.style.display = 'block';
+        modalImage.onerror = function() {
+          console.log('Image error after load');
+          this.src = placeholderImg;
+          this.style.display = 'block';
+        };
+      };
+      
+      img.onerror = function() {
+        console.log('Image failed to load:', imageUrl);
+        // Try one more time with the original URL from data
+        const originalUrl = infographic.image || '';
+        if (originalUrl && originalUrl !== imageUrl) {
+          const retryImg = new Image();
+          retryImg.onload = function() {
+            console.log('Image loaded on retry:', originalUrl);
+            modalImage.src = originalUrl;
+            modalImage.style.display = 'block';
+          };
+          retryImg.onerror = function() {
+            console.log('Image failed on retry');
+            modalImage.src = placeholderImg;
+            modalImage.style.display = 'block';
+          };
+          retryImg.src = originalUrl;
+        } else {
+          // Image failed to load, show placeholder
+          modalImage.src = placeholderImg;
+          modalImage.style.display = 'block';
+        }
+      };
+      
+      // Set src to trigger load
+      img.src = imageUrl;
+    } else {
+      console.log('No valid image URL provided');
+      // No image URL provided
+      modalImage.src = placeholderImg;
+      modalImage.style.display = 'block';
+    }
+    
+    // Also set onerror handler as backup
+    modalImage.onerror = function() {
+      console.log('Modal image error handler triggered');
+      this.src = placeholderImg;
+      this.style.display = 'block';
+    };
+    
+    const detailModalDownloadBtn = document.getElementById("detailModalDownload");
+    detailModalDownloadBtn.setAttribute('data-infographic-id', infographic.id || '');
+    detailModalDownloadBtn.setAttribute('data-infographic-title', infographic.title || 'infografis');
+    detailModalDownloadBtn.href = infographic.download || '#';
+
+    // Update bookmark button in modal
+    {% if user.is_authenticated %}
+    const modalBookmarkBtn = document.getElementById("modalInfographicBookmarkBtn");
+    if (modalBookmarkBtn) {
+      // Find the infographic in the list to get bookmark_id
+      const infographicItem = document.querySelector(`[data-infographic-id="${infographicId}"]`);
+      if (infographicItem) {
+        const listBookmarkBtn = infographicItem.querySelector('.bookmark-btn');
+        if (listBookmarkBtn) {
+          const bookmarkId = listBookmarkBtn.dataset.bookmarkId || '';
+          const isBookmarked = listBookmarkBtn.classList.contains('bookmarked');
+          
+          modalBookmarkBtn.dataset.objectId = infographicId;
+          modalBookmarkBtn.dataset.bookmarkId = bookmarkId;
+          
+          const icon = modalBookmarkBtn.querySelector('i');
+          const text = modalBookmarkBtn.querySelector('span');
+          
+          if (isBookmarked) {
+            modalBookmarkBtn.classList.add('bookmarked');
+            icon.classList.remove('bi-bookmark');
+            icon.classList.add('bi-bookmark-fill');
+            if (text) text.textContent = 'Tersimpan';
+          } else {
+            modalBookmarkBtn.classList.remove('bookmarked');
+            icon.classList.remove('bi-bookmark-fill');
+            icon.classList.add('bi-bookmark');
+            if (text) text.textContent = 'Bookmark';
+          }
+        }
+      }
+    }
+    {% endif %}
+
+    // Get related infographics (exclude current one, get 3 related)
+    const related = allInfographicsData
+      .filter(item => item.id !== infographicId)
+      .slice(0, 3);
+
+    // Populate related infographics
+    const relatedContainer = document.getElementById("relatedInfographics");
+    relatedContainer.innerHTML = '';
+
+    if (related.length === 0) {
+      relatedContainer.innerHTML = '<p class="text-muted small">Tidak ada infografis terkait</p>';
+    } else {
+      related.forEach((item) => {
+        let itemImageUrl = item.image || '';
+        if (itemImageUrl) {
+          try {
+            itemImageUrl = decodeURIComponent(itemImageUrl);
+          } catch (e) {
+            itemImageUrl = item.image;
+          }
+        }
+
+        const relatedItem = document.createElement("div");
+        relatedItem.className = "related-infographic-item";
+        relatedItem.onclick = () => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById("infographicDetailModal"));
+          modal.hide();
+          setTimeout(() => showInfographicDetail(item.id), 300);
+        };
+        
+        const relatedImg = document.createElement('img');
+        relatedImg.src = itemImageUrl || '';
+        relatedImg.alt = item.title;
+        relatedImg.style.objectFit = 'contain';
+        relatedImg.style.width = '80px';
+        relatedImg.style.height = 'auto';
+        relatedImg.style.maxHeight = '80px';
+        relatedImg.onerror = function() {
+          this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="18" font-family="Arial"%3EImage Not Available%3C/text%3E%3C/svg%3E';
+        };
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'content';
+        
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'title';
+        titleDiv.textContent = item.title;
+        
+        contentDiv.appendChild(titleDiv);
+        relatedItem.appendChild(relatedImg);
+        relatedItem.appendChild(contentDiv);
+        
+        relatedContainer.appendChild(relatedItem);
+      });
+    }
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById("infographicDetailModal"));
+    modal.show();
+  }
+
+
+  // Refresh data - Reload dari database
+  function refreshData() {
+    const btn = event.target.closest("button");
+    const originalContent = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memuat ulang...';
+
+    // Reload halaman untuk mengambil data terbaru dari database
+    location.reload();
+  }
+
+  // Fix all modal close buttons - Universal handler
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle all close buttons with data-bs-dismiss="modal"
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function(closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Find the closest modal
+        const modalElement = this.closest('.modal');
+        if (modalElement) {
+          // Use Bootstrap Modal API to close
+          const modalInstance = bootstrap.Modal.getInstance(modalElement);
+          if (modalInstance) {
+            modalInstance.hide();
+          } else {
+            // If no instance exists, create one and hide it
+            const modal = new bootstrap.Modal(modalElement);
+            modal.hide();
+          }
+        }
+      });
+    });
+  });
+
+  // Handle download clicks with login check
+  document.addEventListener('DOMContentLoaded', function() {
+    const downloadButtons = document.querySelectorAll('.download-infographic-btn');
+    downloadButtons.forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        {% if not user.is_authenticated %}
+        e.preventDefault();
+        const infographicTitle = this.getAttribute('data-infographic-title') || 'infografis';
+        // Redirect to login page
+        if (typeof showLoginRequiredModal === 'function') {
+          showLoginRequiredModal(infographicTitle);
+        } else {
+          // Fallback: show alert and open login modal
+          alert('Ingin mengunduh ' + infographicTitle + ' ini? Silakan login terlebih dahulu.');
+          const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+          loginModal.show();
+        }
+        {% endif %}
+      });
+    });
+  });
+
+  // --- Bookmark Functionality ---
+  async function toggleBookmark(button) {
+    // Prevent multiple clicks
+    if (button.disabled) return;
+    button.disabled = true;
+
+    const contentType = button.dataset.contentType;
+    const objectId = button.dataset.objectId;
+    let bookmarkId = button.dataset.bookmarkId;
+    const isBookmarked = button.classList.contains("bookmarked");
+
+    // Validate required data
+    if (!contentType || !objectId) {
+      console.error("Missing required data:", { contentType, objectId });
+      alert("Data tidak lengkap. Silakan refresh halaman.");
+      button.disabled = false;
+      return;
+    }
+
+    const icon = button.querySelector("i");
+    const text = button.querySelector("span");
+
+    // Dapatkan CSRF token dari cookie atau meta tag
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    
+    // Try to get CSRF token from cookie first, then from meta tag
+    let csrftoken = getCookie("csrftoken");
+    if (!csrftoken) {
+      const metaTag = document.querySelector('meta[name="csrf-token"]');
+      if (metaTag) {
+        csrftoken = metaTag.getAttribute("content");
+      }
+    }
+
+    if (!csrftoken) {
+      console.error("CSRF token not found");
+      alert("Sesi Anda telah berakhir. Silakan refresh halaman dan login kembali.");
+      button.disabled = false;
+      return;
+    }
+
+    try {
+      if (isBookmarked) {
+        // --- Hapus Bookmark ---
+        if (!bookmarkId) {
+          console.error("Bookmark ID tidak ditemukan untuk penghapusan");
+          button.disabled = false;
+          return;
+        }
+
+        console.log("Deleting bookmark:", { bookmarkId, contentType, objectId });
+        const response = await fetch(`/api/bookmarks/delete/${bookmarkId}/`, {
+          method: "DELETE",
+          headers: { 
+            "X-CSRFToken": csrftoken,
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          credentials: "include",
+        });
+
+        console.log("Delete response status:", response.status);
+        
+        if (response.ok || response.status === 204) {
+          button.classList.remove("bookmarked");
+          icon.classList.remove("bi-bookmark-fill");
+          icon.classList.add("bi-bookmark");
+          button.dataset.bookmarkId = "";
+          if (text) text.textContent = "Bookmark";
+          
+          // Sync with other bookmark buttons for the same item
+          syncBookmarkButtons(contentType, objectId, false, "");
+          
+          // Broadcast change to other tabs
+          if (typeof broadcastBookmarkChange === 'function') {
+            broadcastBookmarkChange(contentType, objectId, false, "");
+          }
+          
+          // Update bookmark list in header
+          if (typeof updateBookmarkList === 'function') {
+            updateBookmarkList();
+          }
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Delete bookmark error:", errorData);
+          alert("Gagal menghapus bookmark: " + (errorData.error || errorData.detail || "Terjadi kesalahan"));
+        }
+      } else {
+        // --- Tambah Bookmark ---
+        const requestBody = { 
+          content_type_name: contentType, 
+          object_id: objectId 
+        };
+        
+        console.log("Adding bookmark:", requestBody);
+        
+        const response = await fetch(`/api/bookmarks/add/`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json", 
+            "X-CSRFToken": csrftoken,
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          credentials: "include",
+          body: JSON.stringify(requestBody),
+        });
+
+        console.log("Add response status:", response.status);
+        const responseData = await response.json().catch(() => ({}));
+        console.log("Add response data:", responseData);
+
+        if (response.ok) {
+          button.classList.add("bookmarked");
+          icon.classList.remove("bi-bookmark");
+          icon.classList.add("bi-bookmark-fill");
+          button.dataset.bookmarkId = String(responseData.id);
+          if (text) text.textContent = "Tersimpan";
+          
+          // Sync with other bookmark buttons for the same item
+          syncBookmarkButtons(contentType, objectId, true, String(responseData.id));
+          
+          // Broadcast change to other tabs
+          if (typeof broadcastBookmarkChange === 'function') {
+            broadcastBookmarkChange(contentType, objectId, true, String(responseData.id));
+          }
+          
+          // Update bookmark list in header
+          if (typeof updateBookmarkList === 'function') {
+            updateBookmarkList();
+          }
+        } else {
+          if (response.status === 409) {
+            // Bookmark already exists, fetch and update UI
+            try {
+              const existingBookmarks = await fetch(`/api/bookmarks/`, {
+                headers: { 
+                  "X-CSRFToken": csrftoken,
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                credentials: "include",
+              }).then(r => r.json()).catch(() => []);
+              
+              const bookmark = existingBookmarks.find(b => 
+                b.content_type_model === contentType && 
+                String(b.object_id) === String(objectId)
+              );
+              
+              if (bookmark) {
+                button.classList.add("bookmarked");
+                icon.classList.remove("bi-bookmark");
+                icon.classList.add("bi-bookmark-fill");
+              button.dataset.bookmarkId = String(bookmark.id);
+              if (text) text.textContent = "Tersimpan";
+              syncBookmarkButtons(contentType, objectId, true, String(bookmark.id));
+              
+              // Broadcast change to other tabs
+              if (typeof broadcastBookmarkChange === 'function') {
+                broadcastBookmarkChange(contentType, objectId, true, String(bookmark.id));
+              }
+              
+              // Update bookmark list in header
+              if (typeof updateBookmarkList === 'function') {
+                updateBookmarkList();
+              }
+            } else {
+              alert("Bookmark sudah ada tetapi tidak dapat ditemukan.");
+            }
+          } catch (fetchError) {
+            console.error("Error fetching existing bookmarks:", fetchError);
+            alert("Bookmark sudah ada di daftar Anda.");
+          }
+        } else {
+            const errorMsg = responseData.error || responseData.detail || responseData.non_field_errors || "Terjadi kesalahan";
+            console.error("Add bookmark error:", responseData);
+            alert("Gagal menambahkan bookmark: " + (Array.isArray(errorMsg) ? errorMsg.join(", ") : errorMsg));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      alert("Terjadi kesalahan: " + error.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  // Sync bookmark state across all buttons for the same item
+  function syncBookmarkButtons(contentType, objectId, isBookmarked, bookmarkId) {
+    // Find all bookmark buttons for this item
+    const allButtons = document.querySelectorAll(`.bookmark-btn[data-content-type="${contentType}"][data-object-id="${objectId}"]`);
+    
+    allButtons.forEach(btn => {
+      const icon = btn.querySelector("i");
+      const text = btn.querySelector("span");
+      
+      if (isBookmarked) {
+        btn.classList.add("bookmarked");
+        icon.classList.remove("bi-bookmark");
+        icon.classList.add("bi-bookmark-fill");
+        btn.dataset.bookmarkId = bookmarkId;
+        if (text) text.textContent = "Tersimpan";
+      } else {
+        btn.classList.remove("bookmarked");
+        icon.classList.remove("bi-bookmark-fill");
+        icon.classList.add("bi-bookmark");
+        btn.dataset.bookmarkId = "";
+        if (text) text.textContent = "Bookmark";
+      }
+    });
+  }
+
+  // Cross-tab bookmark synchronization using localStorage
+  function broadcastBookmarkChange(contentType, objectId, isBookmarked, bookmarkId) {
+    const bookmarkData = {
+      contentType,
+      objectId: String(objectId),
+      isBookmarked,
+      bookmarkId: String(bookmarkId || ''),
+      timestamp: Date.now()
+    };
+    
+    console.log('Broadcasting bookmark change:', bookmarkData);
+    
+    // Save to localStorage (triggers storage event in other tabs)
+    localStorage.setItem('bookmark_change', JSON.stringify(bookmarkData));
+    
+    // Dispatch custom event for immediate same-tab sync
+    window.dispatchEvent(new CustomEvent('bookmarkChanged', {
+      detail: bookmarkData
+    }));
+  }
+
+  // Listen for bookmark changes from other tabs
+  {% if user.is_authenticated %}
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'bookmark_change' && e.newValue) {
+      try {
+        const bookmarkData = JSON.parse(e.newValue);
+        const { contentType, objectId, isBookmarked, bookmarkId } = bookmarkData;
+        
+        console.log('Bookmark change from storage:', bookmarkData);
+        
+        // Sync bookmark buttons in current tab
+        if (typeof syncBookmarkButtons === 'function') {
+          syncBookmarkButtons(contentType, objectId, isBookmarked, bookmarkId);
+        }
+        
+        // Update bookmark list in header
+        if (typeof updateBookmarkList === 'function') {
+          updateBookmarkList();
+        }
+      } catch (error) {
+        console.error('Error parsing bookmark change:', error);
+      }
+    }
+  });
+
+  // Listen for custom events (same-tab immediate sync)
+  window.addEventListener('bookmarkChanged', function(e) {
+    const { contentType, objectId, isBookmarked, bookmarkId } = e.detail;
+    console.log('Bookmark change from custom event:', e.detail);
+    
+    if (typeof syncBookmarkButtons === 'function') {
+      syncBookmarkButtons(contentType, objectId, isBookmarked, bookmarkId);
+    }
+    
+    if (typeof updateBookmarkList === 'function') {
+      updateBookmarkList();
+    }
+  });
+  {% endif %}
+
+  // Make functions available globally
+  window.broadcastBookmarkChange = broadcastBookmarkChange;
+  window.syncBookmarkButtons = syncBookmarkButtons;
+</script>
+{% endblock %}

@@ -1,0 +1,969 @@
+{% extends 'dashboard/dashboard.html' %} 
+{% load static %} 
+{% block dashboard_content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<div class="container py-4">
+  <h3 class="font-weight-bold mb-4">Gini Ratio</h3>
+  
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <!-- Kota Surabaya Card -->
+    <div class="col-6 col-md-6 mb-2 mb-md-3">
+      <div class="summary-card summary-card-mobile" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);; color: white; border-radius: 12px; padding: 24px; min-height: 180px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">Kota Surabaya</h6>
+          <h2 style="font-size: 42px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_surabaya and latest_surabaya.gini_ratio_value %}
+              {{ latest_surabaya.gini_ratio_value|floatformat:3 }}
+            {% else %}
+              -
+            {% endif %}
+          </h2>
+          <div style="display: flex; align-items: center; margin-top: 8px;">
+            {% if surabaya_change is not None %}
+              <span style="font-size: 16px; font-weight: 600; margin-right: 8px;">
+                {% if surabaya_change > 0 %}
+                  <i class="fas fa-arrow-up" style="color: #f5576c;"></i>
+                {% elif surabaya_change < 0 %}
+                  <i class="fas fa-arrow-down" style="color: #34d399;"></i>
+                {% else %}
+                  <i class="fas fa-minus" style="color: rgba(255, 255, 255, 0.8);"></i>
+                {% endif %}
+              </span>
+              <span style="font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                {% if surabaya_change > 0 %}
+                  +{{ surabaya_change|floatformat:3 }}
+                {% elif surabaya_change < 0 %}
+                  {{ surabaya_change|floatformat:3 }}
+                {% else %}
+                  Tidak ada perubahan
+                {% endif %}
+                {% if previous_surabaya %} dari {{ previous_surabaya.year }}{% endif %}
+              </span>
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-top: auto;">
+            {% if latest_surabaya %}
+              Tahun {{ latest_surabaya.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+        <div style="position: absolute; top: 20px; right: 20px; opacity: 0.15; z-index: 1;">
+          <i class="fas fa-city" style="font-size: 80px;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jawa Timur Card -->
+    <div class="col-6 col-md-6 mb-2 mb-md-3">
+      <div class="summary-card summary-card-mobile" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; padding: 24px; min-height: 180px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">Jawa Timur</h6>
+          <h2 style="font-size: 42px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_jatim and latest_jatim.gini_ratio_value %}
+              {{ latest_jatim.gini_ratio_value|floatformat:3 }}
+            {% else %}
+              -
+            {% endif %}
+          </h2>
+          <div style="display: flex; align-items: center; margin-top: 8px;">
+            {% if jatim_change is not None %}
+              <span style="font-size: 16px; font-weight: 600; margin-right: 8px;">
+                {% if jatim_change > 0 %}
+                  <i class="fas fa-arrow-up" style="color: #f5576c;"></i>
+                {% elif jatim_change < 0 %}
+                  <i class="fas fa-arrow-down" style="color: #34d399;"></i>
+                {% else %}
+                  <i class="fas fa-minus" style="color: rgba(255, 255, 255, 0.8);"></i>
+                {% endif %}
+              </span>
+              <span style="font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                {% if jatim_change > 0 %}
+                  +{{ jatim_change|floatformat:3 }}
+                {% elif jatim_change < 0 %}
+                  {{ jatim_change|floatformat:3 }}
+                {% else %}
+                  Tidak ada perubahan
+                {% endif %}
+                {% if previous_jatim %} dari {{ previous_jatim.year }}{% endif %}
+              </span>
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-top: auto;">
+            {% if latest_jatim %}
+              Tahun {{ latest_jatim.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+        <div style="position: absolute; top: 20px; right: 20px; opacity: 0.15; z-index: 1;">
+          <i class="fas fa-map-marked-alt" style="font-size: 80px;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Line Chart -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="dashboard-card" style="position: relative;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Trend Gini Ratio Kota Surabaya dan Jawa Timur</h4>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadLineChartDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadLineChartDropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadLineChartExcel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadLineChartPNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container-mobile">
+          <div id="comparisonLineChart" class="chart-container-desktop" style="width: 100%; height: 400px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Line Chart for Recent Years -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="dashboard-card" style="position: relative;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">Perbandingan Gini Ratio 5 Tahun Terakhir</h4>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadBarChartDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadBarChartDropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadBarChartExcel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadBarChartPNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container-mobile">
+          <div id="comparisonBarChart" class="chart-container-desktop" style="width: 100%; height: 400px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Info Card -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="dashboard-card" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+        <h5 class="mb-3"><i class="fas fa-info-circle"></i> Tentang Gini Ratio</h5>
+        <p style="margin-bottom: 0; line-height: 1.8;">
+          <strong>Gini Ratio</strong> adalah indikator yang mengukur tingkat ketimpangan distribusi pendapatan dalam suatu wilayah. 
+          Nilai Gini Ratio berkisar antara 0 hingga 1, di mana:
+        </p>
+        <ul style="margin-top: 12px; margin-bottom: 0; line-height: 1.8;">
+          <li><strong>0</strong> = Distribusi pendapatan sempurna (sangat merata)</li>
+          <li><strong>1</strong> = Distribusi pendapatan sangat tidak merata (satu orang memiliki semua pendapatan)</li>
+        </ul>
+        <p style="margin-top: 12px; margin-bottom: 16px; line-height: 1.8;">
+          Semakin rendah nilai Gini Ratio, semakin merata distribusi pendapatan di wilayah tersebut.
+        </p>
+        
+        <h6 class="mb-3" style="font-weight: 600;">Interpretasi Ketimpangan</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered" style="margin-bottom: 0;">
+            <thead style="background-color: #f8f9fa;">
+              <tr>
+                <th style="padding: 12px; text-align: center; font-weight: 600;">Nilai Gini</th>
+                <th style="padding: 12px; text-align: center; font-weight: 600;">Interpretasi Ketimpangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 12px; text-align: center;">0,00 – 0,29</td>
+                <td style="padding: 12px; text-align: center;"><strong>Rendah (merata)</strong> / Low (even)</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; text-align: center;">0,30 – 0,49</td>
+                <td style="padding: 12px; text-align: center;"><strong>Sedang</strong> / Moderate</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px; text-align: center;">0,50 – 1,00</td>
+                <td style="padding: 12px; text-align: center;"><strong>Tinggi (tidak merata)</strong> / High (uneven)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dashboard-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
+  
+  /* Download button styles */
+  .dashboard-card button[id*="download"] {
+    white-space: nowrap;
+  }
+  
+  @media (max-width: 576px) {
+    .dashboard-card button[id*="download"] {
+      padding: 4px 6px !important;
+      font-size: 10px !important;
+    }
+    
+    .dashboard-card button[id*="download"] i {
+      font-size: 12px !important;
+      margin: 0 !important;
+    }
+  }
+
+  /* Mobile responsive styles for summary cards */
+  @media (max-width: 767.98px) {
+    .summary-card-mobile {
+      padding: 10px 10px 0px 10px !important;
+      min-height: auto !important;
+      height: fit-content !important;
+      border-radius: 8px !important;
+    }
+    
+    .summary-card-mobile h6 {
+      font-size: 13px !important;
+      margin-bottom: 4px !important;
+    }
+    
+    .summary-card-mobile h2 {
+      font-size: 32px !important;
+      margin-bottom: 2px !important;
+      line-height: 1.1 !important;
+    }
+    
+    .summary-card-mobile > div[style*="position: absolute"] {
+      top: 10px !important;
+      right: 10px !important;
+    }
+    
+    .summary-card-mobile > div[style*="position: absolute"] .fas {
+      font-size: 30px !important;
+    }
+    
+    .summary-card-mobile small {
+      font-size: 12px !important;
+      margin-top: 2px !important;
+      margin-bottom: 0 !important;
+      line-height: 1 !important;
+      padding-bottom: 0 !important;
+      padding-top: 0 !important;
+      display: block !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 14px"] {
+      font-size: 12px !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 16px"] {
+      font-size: 14px !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 16px"] .fas {
+      font-size: 12px !important;
+    }
+    
+    .summary-card-mobile > div[style*="position: relative"][style*="z-index: 2"] {
+      margin: 0 !important;
+      padding-bottom: 0 !important;
+      flex: 0 0 auto !important;
+    }
+    
+    .summary-card-mobile > div[style*="position: relative"][style*="z-index: 2"] > div[style*="display: flex"][style*="align-items: center"] {
+      margin-top: 2px !important;
+      margin-bottom: 0 !important;
+    }
+    
+    .summary-card-mobile > div[style*="position: relative"][style*="z-index: 2"] > div[style*="display: flex"][style*="align-items: center"] span[style*="margin-right: 8px"] {
+      margin-right: 6px !important;
+    }
+    
+    /* Hilangkan semua space kosong di bawah */
+    .summary-card-mobile > div[style*="position: relative"][style*="z-index: 2"] > *:last-child {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    /* Override inline style padding dan margin-top auto */
+    .summary-card-mobile[style*="padding: 24px"] {
+      padding: 10px 10px 0px 10px !important;
+    }
+    
+    /* Pastikan card tidak punya space kosong di bawah */
+    .summary-card-mobile {
+      padding-bottom: 0 !important;
+    }
+    
+    .summary-card-mobile small[style*="margin-top: auto"] {
+      margin-top: 2px !important;
+    }
+    
+    /* Pastikan tidak ada space dari flex */
+    .summary-card-mobile[style*="display: flex"] {
+      align-items: flex-start !important;
+    }
+    
+    /* Hilangkan semua space kosong di bawah card */
+    .summary-card-mobile > div[style*="position: relative"][style*="z-index: 2"] {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    /* Download button responsive */
+    .dashboard-card button[id*="download"] {
+      padding: 3px 8px !important;
+      font-size: 11px !important;
+    }
+    
+    .dashboard-card button[id*="download"] i {
+      font-size: 10px !important;
+    }
+    
+    .dashboard-card button[id*="download"] span {
+      display: none;
+    }
+    
+    .summary-card-mobile > div[style*="position: relative"][style*="z-index: 2"] > small:last-child {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    /* Chart responsive dengan horizontal scroll */
+    .chart-container-mobile {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+    
+    .chart-container-mobile > div {
+      min-width: 400px;
+      width: 100%;
+      height: 350px !important;
+    }
+
+    /* Pastikan grafik terlihat di mobile */
+    .dashboard-card {
+      padding: 15px !important;
+      overflow: hidden;
+    }
+    
+    .dashboard-card h4 {
+      font-size: 16px !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      word-wrap: break-word !important;
+      line-height: 1.4 !important;
+    }
+  }
+
+  /* Desktop: chart container normal */
+  @media (min-width: 768px) {
+    .chart-container-mobile {
+      overflow: visible;
+    }
+    
+    .chart-container-mobile > div {
+      min-width: auto;
+    }
+
+    /* Perbesar grafik untuk desktop */
+    .chart-container-desktop {
+      height: 450px !important;
+      min-height: 450px !important;
+    }
+  }
+  
+  .table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .table thead th {
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Prepare data from Django template
+    const surabayaData = [
+      {% for data in surabaya_data %}
+      {
+        year: {{ data.year }},
+        value: {{ data.gini_ratio_value|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const jatimData = [
+      {% for data in jatim_data %}
+      {
+        year: {{ data.year }},
+        value: {{ data.gini_ratio_value|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // Sort data by year
+    surabayaData.sort((a, b) => a.year - b.year);
+    jatimData.sort((a, b) => a.year - b.year);
+
+    // Get all unique years
+    const allYears = [...new Set([...surabayaData.map(d => d.year), ...jatimData.map(d => d.year)])].sort();
+
+    // Calculate min and max values from all data for dynamic scaling
+    const allValues = [
+      ...surabayaData.map(d => d.value).filter(v => v !== null),
+      ...jatimData.map(d => d.value).filter(v => v !== null)
+    ];
+    
+    const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
+    const maxValue = allValues.length > 0 ? Math.max(...allValues) : 0.5;
+    
+    // Add padding: 10% below min and 15% above max
+    const yMin = Math.max(0, minValue - (minValue * 0.1));
+    const yMax = maxValue + (maxValue * 0.15);
+    
+    // Round to multiples of 0.05
+    // Round min down to nearest 0.05
+    const roundedYMin = Math.floor(yMin / 0.05) * 0.05;
+    // Round max up to nearest 0.05
+    const roundedYMax = Math.ceil(yMax / 0.05) * 0.05;
+
+    // Check if mobile
+    const isMobile = window.innerWidth <= 767.98;
+
+    // Create comparison line chart
+    function createComparisonLineChart() {
+      const chartDom = document.getElementById('comparisonLineChart');
+      
+      // Dispose existing chart if it exists
+      if (window.comparisonLineChartInstance) {
+        window.comparisonLineChartInstance.dispose();
+      }
+
+      // Prepare data arrays aligned by year
+      const labels = allYears.map(y => y.toString());
+      const surabayaValues = allYears.map(year => {
+        const data = surabayaData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const jatimValues = allYears.map(year => {
+        const data = jatimData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+
+      window.comparisonLineChartInstance = echarts.init(chartDom);
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(params) {
+            let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+            params.forEach(function(item) {
+              if (item.value === null || item.value === undefined) {
+                result += item.marker + item.seriesName + ': Data tidak tersedia<br/>';
+              } else {
+                result += item.marker + item.seriesName + ': ' + item.value.toFixed(3) + '<br/>';
+              }
+            });
+            return result;
+          }
+        },
+        legend: {
+          data: ['Kota Surabaya', 'Jawa Timur'],
+          top: isMobile ? 5 : 10,
+          left: 'center',
+          orient: 'horizontal',
+          itemGap: isMobile ? 15 : 20,
+          itemWidth: isMobile ? 10 : 12,
+          itemHeight: isMobile ? 10 : 12,
+          textStyle: {
+            fontSize: isMobile ? 10 : 12
+          }
+        },
+        grid: {
+          left: isMobile ? '18%' : '10%',
+          right: isMobile ? '10%' : '5%',
+          bottom: isMobile ? '15%' : '12%',
+          top: isMobile ? '18%' : '20%',
+          containLabel: false
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: labels,
+          name: 'Tahun',
+          nameLocation: 'middle',
+          nameGap: isMobile ? 20 : 30,
+          nameTextStyle: {
+            fontSize: isMobile ? 10 : 12
+          },
+          axisLabel: {
+            fontSize: isMobile ? 9 : 11,
+            margin: isMobile ? 8 : 10
+          }
+        },
+        yAxis: {
+          type: 'value',
+          min: roundedYMin,
+          max: roundedYMax,
+          interval: 0.05,
+          axisLabel: {
+            formatter: function(value) {
+              return value.toFixed(3);
+            },
+            fontSize: isMobile ? 9 : 11,
+            margin: isMobile ? 8 : 10
+          },
+          name: 'Gini Ratio',
+          nameLocation: 'middle',
+          nameGap: isMobile ? 35 : 50,
+          nameTextStyle: {
+            fontSize: isMobile ? 10 : 12
+          }
+        },
+        series: [
+          {
+            name: 'Kota Surabaya',
+            type: 'line',
+            smooth: 0.4,
+            data: surabayaValues,
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                  { offset: 1, color: 'rgba(37, 99, 235, 0.1)' }
+                ]
+              }
+            },
+            lineStyle: {
+              color: '#3b82f6',
+              width: 2
+            },
+            itemStyle: {
+              color: '#3b82f6',
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            symbol: 'circle',
+            symbolSize: 8
+          },
+          {
+            name: 'Jawa Timur',
+            type: 'line',
+            smooth: 0.4,
+            data: jatimValues,
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(239, 68, 68, 0.3)' },
+                  { offset: 1, color: 'rgba(220, 38, 38, 0.1)' }
+                ]
+              }
+            },
+            lineStyle: {
+              color: '#ef4444',
+              width: 2
+            },
+            itemStyle: {
+              color: '#ef4444',
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            symbol: 'circle',
+            symbolSize: 8
+          }
+        ]
+      };
+      window.comparisonLineChartInstance.setOption(option);
+    }
+
+    // Create comparison line chart for recent years
+    function createComparisonBarChart() {
+      const chartDom = document.getElementById('comparisonBarChart');
+      
+      // Dispose existing chart if it exists
+      if (window.comparisonBarChartInstance) {
+        window.comparisonBarChartInstance.dispose();
+      }
+
+      // Get last 5 years or all available years
+      const recentYears = allYears.slice(-5);
+      
+      const labels = recentYears.map(y => y.toString());
+      const surabayaValues = recentYears.map(year => {
+        const data = surabayaData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const jatimValues = recentYears.map(year => {
+        const data = jatimData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+
+      window.comparisonBarChartInstance = echarts.init(chartDom);
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(params) {
+            let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+            params.forEach(function(item) {
+              if (item.value === null || item.value === undefined) {
+                result += item.marker + item.seriesName + ': Data tidak tersedia<br/>';
+              } else {
+                result += item.marker + item.seriesName + ': ' + item.value.toFixed(3) + '<br/>';
+              }
+            });
+            return result;
+          }
+        },
+        legend: {
+          data: ['Kota Surabaya', 'Jawa Timur'],
+          top: isMobile ? 5 : 10,
+          left: 'center',
+          orient: 'horizontal',
+          itemGap: isMobile ? 15 : 20,
+          itemWidth: isMobile ? 10 : 12,
+          itemHeight: isMobile ? 10 : 12,
+          textStyle: {
+            fontSize: isMobile ? 10 : 12
+          }
+        },
+        grid: {
+          left: isMobile ? '18%' : '10%',
+          right: isMobile ? '10%' : '5%',
+          bottom: isMobile ? '15%' : '12%',
+          top: isMobile ? '18%' : '20%',
+          containLabel: false
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: labels,
+          name: 'Tahun',
+          nameLocation: 'middle',
+          nameGap: isMobile ? 20 : 30,
+          nameTextStyle: {
+            fontSize: isMobile ? 10 : 12
+          },
+          axisLabel: {
+            fontSize: isMobile ? 9 : 11,
+            margin: isMobile ? 8 : 10
+          }
+        },
+        yAxis: {
+          type: 'value',
+          min: roundedYMin,
+          max: roundedYMax,
+          interval: 0.05,
+          axisLabel: {
+            formatter: function(value) {
+              return value.toFixed(3);
+            },
+            fontSize: isMobile ? 9 : 11,
+            margin: isMobile ? 8 : 10
+          },
+          name: 'Gini Ratio',
+          nameLocation: 'middle',
+          nameGap: isMobile ? 35 : 50,
+          nameTextStyle: {
+            fontSize: isMobile ? 10 : 12
+          }
+        },
+        series: [
+          {
+            name: 'Kota Surabaya',
+            type: 'line',
+            smooth: 0.4,
+            data: surabayaValues,
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                  { offset: 1, color: 'rgba(37, 99, 235, 0.1)' }
+                ]
+              }
+            },
+            lineStyle: {
+              color: '#3b82f6',
+              width: 2
+            },
+            itemStyle: {
+              color: '#3b82f6',
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            symbol: 'circle',
+            symbolSize: 8
+          },
+          {
+            name: 'Jawa Timur',
+            type: 'line',
+            smooth: 0.4,
+            data: jatimValues,
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(239, 68, 68, 0.3)' },
+                  { offset: 1, color: 'rgba(220, 38, 38, 0.1)' }
+                ]
+              }
+            },
+            lineStyle: {
+              color: '#ef4444',
+              width: 2
+            },
+            itemStyle: {
+              color: '#ef4444',
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            symbol: 'circle',
+            symbolSize: 8
+          }
+        ]
+      };
+      window.comparisonBarChartInstance.setOption(option);
+    }
+
+    // Initialize charts
+    createComparisonLineChart();
+    createComparisonBarChart();
+
+    // Function to resize all charts
+    function resizeAllCharts() {
+      // Update isMobile check
+      const currentIsMobile = window.innerWidth <= 767.98;
+      
+      if (window.comparisonLineChartInstance) {
+        setTimeout(() => {
+          window.comparisonLineChartInstance.resize();
+          // Update chart option if mobile state changed
+          if (currentIsMobile !== isMobile) {
+            const option = window.comparisonLineChartInstance.getOption();
+            option.legend.top = currentIsMobile ? 5 : 10;
+            option.legend.textStyle.fontSize = currentIsMobile ? 10 : 12;
+            option.grid.left = currentIsMobile ? '18%' : '10%';
+            option.grid.right = currentIsMobile ? '10%' : '5%';
+            option.grid.top = currentIsMobile ? '18%' : '20%';
+            window.comparisonLineChartInstance.setOption(option);
+          }
+        }, 100);
+      }
+      if (window.comparisonBarChartInstance) {
+        setTimeout(() => {
+          window.comparisonBarChartInstance.resize();
+          // Update chart option if mobile state changed
+          if (currentIsMobile !== isMobile) {
+            const option = window.comparisonBarChartInstance.getOption();
+            option.legend.top = currentIsMobile ? 5 : 10;
+            option.legend.textStyle.fontSize = currentIsMobile ? 10 : 12;
+            option.grid.left = currentIsMobile ? '18%' : '10%';
+            option.grid.right = currentIsMobile ? '10%' : '5%';
+            option.grid.top = currentIsMobile ? '18%' : '20%';
+            window.comparisonBarChartInstance.setOption(option);
+          }
+        }, 100);
+      }
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', resizeAllCharts);
+
+    // Handle sidebar toggle (common sidebar toggle patterns)
+    const sidebarToggle = document.querySelector('#sidebarToggle, #check, [data-toggle="sidebar"], .sidebar-toggle');
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('change', function() {
+        setTimeout(resizeAllCharts, 300);
+      });
+      sidebarToggle.addEventListener('click', function() {
+        setTimeout(resizeAllCharts, 300);
+      });
+    }
+
+    // Observe sidebar changes using MutationObserver
+    const sidebar = document.querySelector('.sidebar, #sidebar, .side-menu');
+    if (sidebar) {
+      const observer = new MutationObserver(function(mutations) {
+        resizeAllCharts();
+      });
+      observer.observe(sidebar, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+    }
+
+    // Also listen for transitionend events on main content area
+    const mainContent = document.querySelector('.main-panel, .content-wrapper, .page-body-wrapper');
+    if (mainContent) {
+      mainContent.addEventListener('transitionend', resizeAllCharts);
+    }
+
+    // Resize charts after layout is complete
+    setTimeout(() => {
+      resizeAllCharts();
+    }, 500);
+
+    // Export functions for Line Chart
+    function exportLineChartToExcel() {
+      const labels = allYears.map(y => y.toString());
+      const surabayaValues = allYears.map(year => {
+        const data = surabayaData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const jatimValues = allYears.map(year => {
+        const data = jatimData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const exportData = [];
+      exportData.push(['Tahun', 'Kota Surabaya', 'Jawa Timur']);
+      labels.forEach((year, index) => {
+        const surabayaVal = surabayaValues[index] !== null ? surabayaValues[index].toFixed(3) : 'Data tidak tersedia';
+        const jatimVal = jatimValues[index] !== null ? jatimValues[index].toFixed(3) : 'Data tidak tersedia';
+        exportData.push([year, surabayaVal, jatimVal]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 20 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Line Chart');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Gini_Ratio_LineChart_${today}.xlsx`);
+    }
+
+    function exportLineChartToPNG() {
+      const url = window.comparisonLineChartInstance.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Gini_Ratio_LineChart_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    // Helper function to check authentication before download
+    function checkAuthBeforeDownload(callback, itemName = 'data') {
+      {% if not user.is_authenticated %}
+      // User not authenticated, show login modal
+      if (typeof showLoginRequiredModal === 'function') {
+        showLoginRequiredModal(itemName);
+      } else {
+        alert('Ingin mengunduh ' + itemName + ' ini? Silakan login terlebih dahulu.');
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+          const modal = new bootstrap.Modal(loginModal);
+          modal.show();
+        } else {
+          window.location.href = '{% url "login" %}';
+        }
+      }
+      return false;
+      {% else %}
+      // User authenticated, proceed with download
+      callback();
+      return true;
+      {% endif %}
+    }
+
+    document.getElementById('downloadLineChartExcel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportLineChartToExcel, 'data line chart gini ratio');
+    });
+    document.getElementById('downloadLineChartPNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportLineChartToPNG, 'grafik line chart gini ratio');
+    });
+
+    // Export functions for Bar Chart
+    function exportBarChartToExcel() {
+      const last5Years = allYears.slice(-5);
+      const labels = last5Years.map(y => y.toString());
+      const surabayaValues = last5Years.map(year => {
+        const data = surabayaData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const jatimValues = last5Years.map(year => {
+        const data = jatimData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const exportData = [];
+      exportData.push(['Tahun', 'Kota Surabaya', 'Jawa Timur']);
+      labels.forEach((year, index) => {
+        const surabayaVal = surabayaValues[index] !== null ? surabayaValues[index].toFixed(3) : 'Data tidak tersedia';
+        const jatimVal = jatimValues[index] !== null ? jatimValues[index].toFixed(3) : 'Data tidak tersedia';
+        exportData.push([year, surabayaVal, jatimVal]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 20 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Line Chart');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Gini_Ratio_LineChart_5Tahun_${today}.xlsx`);
+    }
+
+    function exportBarChartToPNG() {
+      const url = window.comparisonBarChartInstance.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Gini_Ratio_LineChart_5Tahun_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    document.getElementById('downloadBarChartExcel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportBarChartToExcel, 'data bar chart gini ratio');
+    });
+    document.getElementById('downloadBarChartPNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportBarChartToPNG, 'grafik bar chart gini ratio');
+    });
+  });
+</script>
+
+{% endblock %}
+

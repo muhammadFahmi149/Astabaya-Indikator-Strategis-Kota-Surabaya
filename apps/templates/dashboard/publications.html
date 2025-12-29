@@ -1,0 +1,1654 @@
+{% extends 'dashboard/dashboard.html' %} {% load static %} {% block dashboard_content %}
+<div class="publications-page">
+  <!-- Page Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h3 class="font-weight-bold mb-2">Publikasi BPS Kota Surabaya</h3>
+          <p class="text-muted mb-0">
+            {% if selected_year or search_query %}
+              Menampilkan: <span class="badge bg-primary">{{ filtered_count }}</span> dari <span class="badge bg-secondary">{{ countPublication }}</span> publikasi
+              {% if selected_year %}(Tahun {{ selected_year }}){% endif %}
+            {% else %}
+              Total: <span class="badge bg-primary">{{ countPublication }}</span> publikasi
+            {% endif %}
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i> Refresh Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search - Better Layout -->
+  <div class="row mb-4">
+    <div class="col-md-8 mb-3 mb-md-0">
+      <div class="search-input-wrapper shadow-sm">
+        <input type="text" class="form-control" id="searchInput" placeholder="Cari publikasi berdasarkan judul atau abstrak..." value="{{ search_query|default:'' }}" />
+        <span class="search-icon">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <span class="clear-icon" id="clearIcon" style="display: none;">
+          <i class="bi bi-x-circle text-muted"></i>
+        </span>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="justify-content-end d-flex">
+        <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
+          <button class="btn btn-sm btn-light bg-white dropdown-toggle shadow-sm" type="button" id="yearFilterButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="bi bi-calendar"></i> <span id="yearFilterText">{% if selected_year %}{{ selected_year }}{% else %}Semua Tahun{% endif %}</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="yearFilterButton" id="yearFilterMenu">
+            <a class="dropdown-item {% if not selected_year %}active{% endif %}" href="#" data-year="">Semua Tahun</a>
+            {% for year in available_years %}
+            <a class="dropdown-item {% if selected_year == year|stringformat:"s" %}active{% endif %}" href="#" data-year="{{ year }}">{{ year }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Publications List -->
+  <div class="row">
+    {% if dataPublication %} {% for publication in dataPublication %}
+    <div class="col-12 mb-4 publication-item" data-year="{{ publication.date|date:'Y' }}">
+      <div class="card hover-card">
+        <div class="card-body">
+          <!-- Mobile Layout (Compact) -->
+          <div class="row g-1 align-items-center d-md-none">
+            <!-- Cover Image -->
+            <div class="col-auto">
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 200'%3E%3Crect fill='%23f0f0f0' width='150' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='14' font-family='Arial'%3ELoading...%3C/text%3E%3C/svg%3E"
+                data-src="{{ publication.image }}"
+                alt="{{ publication.title }}"
+                class="rounded shadow-sm lazy-load publication-thumbnail-mobile"
+                style="width: 60px; height: 85px; object-fit: cover; cursor: pointer"
+                loading="lazy"
+                data-pub-id="{{ publication.pub_id|escapejs }}"
+                data-index="{{ forloop.counter0 }}"
+                onclick="showModal(this.dataset.pubId, this.dataset.index)"
+              />
+            </div>
+
+            <!-- Publication Info -->
+            <div class="col">
+              <h6 class="card-title mb-0 fw-bold" style="font-size: 0.85rem; line-height: 1.2; margin-bottom: 0.25rem !important">{{ publication.title }}</h6>
+
+              <div class="mb-0" style="margin-bottom: 0.25rem !important">
+                {% if publication.date %}
+                <span class="badge bg-info me-1" style="font-size: 0.65rem; padding: 0.2rem 0.4rem; line-height: 1.2"> <i class="bi bi-calendar" style="font-size: 0.7rem"></i> {{ publication.date|date:"d M Y" }} </span>
+                {% endif %} {% if publication.size %}
+                <span class="badge bg-secondary" style="font-size: 0.65rem; padding: 0.2rem 0.4rem; line-height: 1.2"> <i class="bi bi-file-earmark-pdf" style="font-size: 0.7rem"></i> {{ publication.size }} </span>
+                {% endif %}
+              </div>
+
+              <p class="card-text text-muted mb-0" style="font-size: 0.75rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.25rem">
+                {{ publication.abstract|truncatewords:20 }}
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="col-auto">
+              <div class="d-flex flex-column gap-1">
+                <button class="btn btn-outline-primary btn-sm" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; white-space: nowrap; line-height: 1.2" data-pub-id="{{ publication.pub_id|escapejs }}" data-index="{{ forloop.counter0 }}" onclick="showModal(this.dataset.pubId, this.dataset.index)">
+                  <i class="bi bi-eye" style="font-size: 0.7rem"></i> Detail
+                </button>
+                <a href="{% url 'download-publication' publication.pub_id %}" target="_blank" class="btn btn-primary btn-sm download-publication-btn" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; white-space: nowrap; line-height: 1.2" data-pub-id="{{ publication.pub_id }}" data-pub-title="{{ publication.title|escapejs }}">
+                  <i class="bi bi-download" style="font-size: 0.7rem"></i> Download PDF
+                </a>
+                {% if user.is_authenticated %}
+                <button
+                  class="btn btn-outline-secondary btn-sm bookmark-btn {% if publication.bookmark_id %}bookmarked{% endif %}"
+                  data-content-type="publication"
+                  data-object-id="{{ publication.pk }}"
+                  data-bookmark-id="{{ publication.bookmark_id|default:'' }}"
+                  onclick="event.stopPropagation(); toggleBookmark(this);"
+                  type="button"
+                >
+                  <i class="bi {% if publication.bookmark_id %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+                  <span class="d-none d-sm-inline"> {% if publication.bookmark_id %}Tersimpan{% else %}Bookmark{% endif %} </span>
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop Layout (Horizontal) -->
+          <div class="row g-3 align-items-center d-none d-md-flex">
+            <!-- Cover Image -->
+            <div class="col-md-3 col-lg-2 text-center">
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 200'%3E%3Crect fill='%23f0f0f0' width='150' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='14' font-family='Arial'%3ELoading...%3C/text%3E%3C/svg%3E"
+                data-src="{{ publication.image }}"
+                alt="{{ publication.title }}"
+                class="img-fluid rounded shadow-sm lazy-load publication-thumbnail"
+                style="max-height: 150px; width: auto; cursor: pointer"
+                loading="lazy"
+                data-pub-id="{{ publication.pub_id|escapejs }}"
+                data-index="{{ forloop.counter0 }}"
+                onclick="showModal(this.dataset.pubId, this.dataset.index)"
+              />
+            </div>
+
+            <!-- Publication Info -->
+            <div class="col-md-6 col-lg-7">
+              <h5 class="card-title mb-2">{{ publication.title }}</h5>
+
+              <div class="mb-2 publication-badges">
+                {% if publication.date %}
+                <span class="badge bg-info me-2"> <i class="bi bi-calendar"></i> {{ publication.date|date:"d M Y" }} </span>
+                {% endif %} {% if publication.size %}
+                <span class="badge bg-secondary"> <i class="bi bi-file-earmark-pdf"></i> {{ publication.size }} </span>
+                {% endif %}
+              </div>
+
+              <p class="card-text text-muted mb-0">{{ publication.abstract|truncatewords:30 }}</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="col-md-3 col-lg-3">
+              <div class="d-flex flex-column gap-2">
+                <button class="btn btn-outline-primary btn-sm" data-pub-id="{{ publication.pub_id|escapejs }}" data-index="{{ forloop.counter0 }}" onclick="showModal(this.dataset.pubId, this.dataset.index)"><i class="bi bi-eye"></i> Detail</button>
+                <a href="{% url 'download-publication' publication.pub_id %}" target="_blank" class="btn btn-primary btn-sm download-publication-btn" data-pub-id="{{ publication.pub_id }}" data-pub-title="{{ publication.title|escapejs }}"> <i class="bi bi-download"></i> Download PDF </a>
+                {% if user.is_authenticated %}
+                <button
+                  class="btn btn-outline-secondary btn-sm bookmark-btn {% if publication.bookmark_id %}bookmarked{% endif %}"
+                  data-content-type="publication"
+                  data-object-id="{{ publication.pk }}"
+                  data-bookmark-id="{{ publication.bookmark_id|default:'' }}"
+                  onclick="event.stopPropagation(); toggleBookmark(this);"
+                  type="button"
+                >
+                  <i class="bi {% if publication.bookmark_id %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+                  <span class="d-none d-sm-inline"> {% if publication.bookmark_id %}Tersimpan{% else %}Bookmark{% endif %} </span>
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="col-12">
+      <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> Belum ada data publikasi.
+        <a href="{% url 'sync-bps-publications' %}" class="alert-link">Sinkronkan data</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Pagination -->
+  {% if dataPublication.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if dataPublication.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ dataPublication.previous_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"> <i class="bi bi-chevron-left"></i> Previous </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
+      </li>
+      {% endif %} {% for num in dataPublication.paginator.page_range %} {% if dataPublication.number == num %}
+      <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num > dataPublication.number|add:'-3' and num < dataPublication.number|add:'3' %}
+      <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">{{ num }}</a></li>
+      {% endif %} {% endfor %} {% if dataPublication.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ dataPublication.next_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}"> Next <i class="bi bi-chevron-right"></i> </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
+      </li>
+      {% endif %}
+    </ul>
+    <p class="text-center text-muted small">Showing {{ dataPublication.start_index }} to {{ dataPublication.end_index }} of {{ filtered_count }} publications</p>
+  </nav>
+  {% endif %}
+</div>
+
+<!-- Modal for Publication Detail -->
+<div class="modal fade" id="publicationModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-3 text-center mb-3">
+            <img id="modalImage" src="" alt="" class="img-fluid rounded shadow" style="max-height: 320px; width: auto;" />
+          </div>
+          <div class="col-md-9">
+            <div class="mb-2">
+              <strong>Tanggal Publikasi:</strong>
+              <span id="modalDate"></span>
+            </div>
+            <div class="mb-2">
+              <strong>Ukuran File:</strong>
+              <span id="modalSize"></span>
+            </div>
+            <div class="mb-2">
+              <strong>ID Publikasi:</strong>
+              <span id="modalPubId"></span>
+            </div>
+            <hr />
+            <div class="abstract-container">
+              <strong>Abstrak:</strong>
+              <p id="modalAbstract" class="mt-2 text-muted"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        {% if user.is_authenticated %}
+        <button
+          id="modalBookmarkBtn"
+          class="btn btn-outline-secondary btn-sm bookmark-btn"
+          data-content-type="publication"
+          data-object-id=""
+          data-bookmark-id=""
+          onclick="toggleBookmark(this)"
+        >
+          <i class="bi bi-bookmark"></i>
+          <span class="d-none d-sm-inline">Bookmark</span>
+        </button>
+        {% endif %}
+        <a id="modalDownload" href="" target="_blank" class="btn btn-primary download-publication-btn" data-pub-id="" data-pub-title=""> <i class="bi bi-download"></i> Unduh PDF </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Search Input Styling */
+  #searchInput {
+    border-radius: 25rem !important;
+    height: 38px;
+  }
+
+  /* Year Filter Dropdown - Button Dropdown Styling */
+  #yearFilterButton {
+    width: 100%;
+    min-width: 160px;
+    border-radius: 25rem !important;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ced4da;
+    position: relative;
+  }
+
+  #yearFilterButton i {
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  #yearFilterButton::after {
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  #yearFilterButton #yearFilterText {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  #yearFilterMenu {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 1rem;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  /* Custom scrollbar for dropdown menu */
+  #yearFilterMenu::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #yearFilterMenu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  #yearFilterMenu::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  #yearFilterMenu::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  #yearFilterMenu .dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  #yearFilterMenu .dropdown-item:hover {
+    background-color: #f8f9fa;
+  }
+
+  #yearFilterMenu .dropdown-item.active {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  #yearFilterMenu .dropdown-item.active:hover {
+    background-color: #0b5ed7;
+  }
+
+  /* Rounded corners for first and last items */
+  #yearFilterMenu .dropdown-item:first-child {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+  }
+
+  #yearFilterMenu .dropdown-item:last-child {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+
+  /* Modal Publication Detail - Smaller size with proper spacing */
+  #publicationModal .modal-dialog {
+    max-width: 480px;
+    margin: 1.75rem auto;
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 3.5rem);
+  }
+
+  #publicationModal .modal-content {
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #publicationModal .modal-header {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  #publicationModal .modal-header .modal-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  #publicationModal .modal-body {
+    flex: 1 1 auto;
+    overflow-y: visible;
+    overflow-x: hidden;
+    padding: 0.75rem;
+    padding-bottom: 0.5rem;
+    min-height: 0;
+    max-height: none;
+  }
+
+  #publicationModal .modal-body .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  #publicationModal .modal-body .col-md-3 {
+    padding-right: 0.5rem;
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #publicationModal .modal-body .col-md-9 {
+    padding-left: 0.75rem;
+    padding-right: 0;
+  }
+
+  #publicationModal .modal-body .col-md-3 img {
+    margin-right: 0;
+  }
+
+  #publicationModal .modal-body .mb-2 {
+    font-size: 0.75rem;
+  }
+
+  #publicationModal .modal-body strong {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  #publicationModal .modal-footer {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0;
+  }
+
+  #publicationModal .modal-footer .btn {
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  #publicationModal .abstract-container {
+    margin-bottom: 0;
+    padding-bottom: 0.5rem;
+  }
+
+  #publicationModal .abstract-container strong {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  #publicationModal #modalAbstract {
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.5;
+    font-size: 0.6875rem;
+    margin-bottom: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+
+  /* Custom scrollbar for abstract */
+  #publicationModal #modalAbstract::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #publicationModal #modalAbstract::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  #publicationModal #modalAbstract::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  #publicationModal #modalAbstract::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 992px) {
+    #publicationModal .modal-dialog {
+      max-width: 80%;
+    }
+
+    #publicationModal #modalImage {
+      max-height: 280px !important;
+    }
+
+    #publicationModal .modal-body {
+      overflow-y: visible;
+      max-height: none;
+    }
+
+    #publicationModal .abstract-container {
+      padding-bottom: 0.5rem;
+    }
+
+    #publicationModal #modalAbstract {
+      font-size: 0.6875rem;
+      line-height: 1.5;
+      max-height: 180px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #publicationModal .modal-dialog {
+      max-width: 90%;
+      margin: 0.5rem auto;
+    }
+
+    #publicationModal .modal-header {
+      padding: 0.5rem 0.75rem;
+    }
+
+    #publicationModal .modal-header .modal-title {
+      font-size: 0.8125rem;
+    }
+
+    #publicationModal .modal-body {
+      padding: 0.5rem;
+      padding-bottom: 0.5rem;
+      overflow-y: visible;
+      max-height: none;
+    }
+
+    #publicationModal .modal-body .col-md-3 {
+      padding-right: 0.5rem;
+      padding-left: 0;
+    }
+
+    #publicationModal .modal-body .col-md-9 {
+      padding-left: 0.5rem;
+      padding-right: 0;
+    }
+
+    #publicationModal .modal-body .mb-2 {
+      font-size: 0.6875rem;
+    }
+
+    #publicationModal .modal-body strong {
+      font-size: 0.6875rem;
+    }
+
+    #publicationModal .abstract-container {
+      padding-bottom: 0.5rem;
+      margin-bottom: 0;
+    }
+
+    #publicationModal .abstract-container strong {
+      font-size: 0.6875rem;
+    }
+
+    #publicationModal #modalAbstract {
+      font-size: 0.625rem;
+      line-height: 1.45;
+      max-height: 150px;
+    }
+
+    #publicationModal .modal-footer {
+      flex-direction: column;
+      padding: 0.5rem 0.75rem;
+      margin-top: 0;
+    }
+
+    #publicationModal .modal-footer .btn {
+      width: 100%;
+      margin: 0;
+      font-size: 0.6875rem;
+    }
+
+    #publicationModal #modalImage {
+      max-height: 240px !important;
+    }
+  }
+
+  @media (max-width: 576px) {
+    #publicationModal .modal-body {
+      padding-bottom: 0.5rem;
+      overflow-y: visible;
+      max-height: none;
+    }
+
+    #publicationModal .abstract-container {
+      padding-bottom: 0.5rem;
+    }
+
+    #publicationModal #modalAbstract {
+      font-size: 0.5625rem;
+      line-height: 1.4;
+      max-height: 120px;
+    }
+
+    #publicationModal .modal-footer {
+      padding: 0.5rem 0.75rem;
+    }
+
+    #publicationModal #modalImage {
+      max-height: 180px !important;
+    }
+  }
+
+  @media (max-width: 400px) {
+    #publicationModal .modal-body {
+      padding-bottom: 0.5rem;
+      overflow-y: visible;
+      max-height: none;
+    }
+
+    #publicationModal .abstract-container {
+      padding-bottom: 0.5rem;
+    }
+
+    #publicationModal #modalAbstract {
+      font-size: 0.5rem;
+      line-height: 1.35;
+      max-height: 100px;
+    }
+
+    #publicationModal .modal-footer {
+      padding: 0.5rem 0.75rem;
+    }
+
+    #publicationModal #modalImage {
+      max-height: 150px !important;
+    }
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    border-radius: 25rem !important;
+  }
+
+  .search-input-wrapper #searchInput {
+    border-radius: 25rem !important;
+    padding-left: 45px;
+    padding-right: 45px;
+    border: 1px solid #ced4da;
+  }
+
+  .search-input-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+  }
+
+  .search-input-wrapper .clear-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .search-input-wrapper .clear-icon:hover {
+    background-color: #e9ecef;
+  }
+
+  .search-input-wrapper .clear-icon i {
+    font-size: 1.1rem;
+  }
+
+  .search-input-wrapper #searchInput:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  .hover-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+  }
+
+  .hover-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .publication-item {
+    margin-bottom: 1.5rem;
+  }
+
+  .publication-thumbnail {
+    transition: transform 0.3s ease;
+  }
+
+  .publication-thumbnail:hover {
+    transform: scale(1.05);
+  }
+
+  /* Mobile Layout (Compact) */
+  @media (max-width: 767.98px) {
+    .publication-item .card-body {
+      padding: 0.5rem;
+    }
+
+    .publication-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .publication-item .card {
+      border-radius: 6px;
+    }
+
+    .publication-thumbnail-mobile {
+      flex-shrink: 0;
+      border-radius: 4px;
+    }
+
+    .publication-item .card-title {
+      font-size: 0.85rem;
+      line-height: 1.2;
+      margin-bottom: 0.25rem !important;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .publication-item .publication-badges {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .publication-item .badge {
+      font-size: 0.55rem;
+      padding: 0.1rem 0.3rem;
+      line-height: 1.1;
+      margin-bottom: 0 !important;
+      white-space: nowrap;
+    }
+
+    .publication-item .badge i {
+      font-size: 0.6rem;
+    }
+
+    .publication-item .card-text {
+      font-size: 0.75rem;
+      line-height: 1.3;
+      margin-bottom: 0;
+      margin-top: 0.25rem;
+    }
+
+    .publication-item .btn-sm {
+      font-size: 0.65rem;
+      padding: 0.25rem 0.5rem;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .publication-item .btn-sm i {
+      font-size: 0.7rem;
+    }
+
+    .publication-item .col-auto:last-child {
+      display: flex;
+      align-items: center;
+    }
+
+    .publication-item .d-flex.flex-column {
+      min-width: 80px;
+    }
+
+    .publication-item .row.g-1 {
+      --bs-gutter-x: 0.5rem;
+      --bs-gutter-y: 0.5rem;
+    }
+  }
+
+  @media (min-width: 576px) and (max-width: 767.98px) {
+    .publication-thumbnail {
+      max-height: 130px;
+    }
+
+    .publication-item .card-body {
+      padding: 1.25rem;
+    }
+
+    .publication-item .publication-badges {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .publication-item .badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.35rem;
+      margin-bottom: 0 !important;
+      white-space: nowrap;
+    }
+
+    .publication-item .badge i {
+      font-size: 0.7rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .publication-item .row {
+      align-items: center;
+    }
+
+    .publication-thumbnail {
+      max-height: 150px;
+    }
+
+    .publication-item .col-md-3 {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .publication-item .d-flex.flex-md-column {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+
+  /* General styles for badges */
+  .publication-item .publication-badges {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .publication-item .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0 !important;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .publication-item .badge i {
+    font-size: 0.8rem;
+  }
+
+  .publication-item .btn-sm {
+    white-space: nowrap;
+  }
+
+  /* Better alignment for content area on desktop */
+  @media (min-width: 768px) {
+    .publication-item .col-md-6 {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+</style>
+
+<!-- Hidden data container for publications -->
+<div id="publicationsDataContainer" style="display: none">
+  {% for publication in dataPublication %}
+  <div
+    class="publication-data"
+    data-title="{{ publication.title|escapejs }}"
+    data-image="{{ publication.image|escapejs }}"
+    data-date="{{ publication.date|date:'d M Y'|default:'N/A' }}"
+    data-size="{{ publication.size|default:'N/A' }}"
+    data-pub-id="{{ publication.pub_id|escapejs }}"
+    data-abstract="{{ publication.abstract|escapejs }}"
+    data-download="{{ publication.dl|escapejs }}"
+  ></div>
+  {% endfor %}
+</div>
+
+<script>
+  // Lazy loading for images
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize year filter dropdown
+    initYearFilter();
+    const lazyImages = document.querySelectorAll("img.lazy-load");
+
+    if ("IntersectionObserver" in window) {
+      const imageObserver = new IntersectionObserver(
+        (entries, observer) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              const src = img.dataset.src;
+
+              const tempImg = new Image();
+              tempImg.onload = function () {
+                img.src = src;
+                img.classList.remove("lazy-load");
+              };
+              tempImg.onerror = function () {
+                img.src =
+                  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 200"%3E%3Crect fill="%23f0f0f0" width="150" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="14" font-family="Arial"%3ENo Image%3C/text%3E%3C/svg%3E';
+              };
+              tempImg.src = src;
+
+              imageObserver.unobserve(img);
+            }
+          });
+        },
+        { rootMargin: "50px" }
+      );
+
+      lazyImages.forEach((img) => imageObserver.observe(img));
+    } else {
+      lazyImages.forEach((img) => {
+        img.src = img.dataset.src;
+      });
+    }
+  });
+
+  // Store publication data for modal
+  const publications = [];
+
+  // Load data from HTML attributes
+  const dataElements = document.querySelectorAll(".publication-data");
+  dataElements.forEach((el) => {
+    // Get image URL - try to decode if needed
+    let imageUrl = el.dataset.image || '';
+    // Ensure image URL is properly decoded
+    if (imageUrl) {
+      try {
+        imageUrl = decodeURIComponent(imageUrl);
+      } catch (e) {
+        // If decoding fails, use original
+        imageUrl = el.dataset.image;
+      }
+    }
+    
+    // Get the primary key (id) from the bookmark button's object-id
+    const bookmarkBtn = el.querySelector('.bookmark-btn');
+    const publicationId = bookmarkBtn ? bookmarkBtn.dataset.objectId : '';
+    
+    publications.push({
+      title: el.dataset.title || '',
+      image: imageUrl,
+      date: el.dataset.date || 'N/A',
+      size: el.dataset.size || 'N/A',
+      pubId: el.dataset.pubId || '',
+      id: publicationId || '', // Primary key for bookmark
+      abstract: el.dataset.abstract || '',
+      download: el.dataset.download || '',
+    });
+    
+    // Also create a map by pubId for faster lookup
+    if (!window.publicationsMap) {
+      window.publicationsMap = {};
+    }
+    if (el.dataset.pubId) {
+      window.publicationsMap[el.dataset.pubId] = publications[publications.length - 1];
+    }
+  });
+
+  // Rest of your existing script...
+
+  // Toggle clear icon visibility
+  function toggleClearIcon() {
+    const searchInput = document.getElementById("searchInput");
+    const clearIcon = document.getElementById("clearIcon");
+    if (searchInput.value.trim().length > 0) {
+      clearIcon.style.display = "flex";
+    } else {
+      clearIcon.style.display = "none";
+    }
+  }
+
+  // Clear search functionality
+  document.getElementById("clearIcon").addEventListener("click", function() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('search');
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+  });
+
+  // Search functionality - submit to server
+  let searchTimeout;
+  const searchInput = document.getElementById("searchInput");
+  
+  // Show/hide clear icon on page load
+  toggleClearIcon();
+  
+  searchInput.addEventListener("input", function (e) {
+    const searchTerm = e.target.value.trim();
+    
+    // Toggle clear icon visibility
+    toggleClearIcon();
+    
+    // Clear previous timeout
+    clearTimeout(searchTimeout);
+    
+    // Debounce: wait 500ms after user stops typing
+    searchTimeout = setTimeout(function() {
+      const url = new URL(window.location.href);
+      
+      // Update or remove search parameter
+      if (searchTerm) {
+        url.searchParams.set('search', searchTerm);
+      } else {
+        url.searchParams.delete('search');
+      }
+      
+      // Reset to page 1 when searching
+      url.searchParams.set('page', '1');
+      
+      // Reload page with search query
+      window.location.href = url.toString();
+    }, 500);
+  });
+
+  // Allow Enter key to submit immediately
+  document.getElementById("searchInput").addEventListener("keypress", function (e) {
+    if (e.key === 'Enter') {
+      clearTimeout(searchTimeout);
+      const searchTerm = e.target.value.trim();
+      const url = new URL(window.location.href);
+      
+      if (searchTerm) {
+        url.searchParams.set('search', searchTerm);
+      } else {
+        url.searchParams.delete('search');
+      }
+      
+      url.searchParams.set('page', '1');
+      window.location.href = url.toString();
+    }
+  });
+
+  // Year filter - handle dropdown item clicks
+  function initYearFilter() {
+    const yearFilterButton = document.getElementById("yearFilterButton");
+    const yearFilterMenu = document.getElementById("yearFilterMenu");
+    const yearFilterItems = document.querySelectorAll("#yearFilterMenu .dropdown-item");
+    if (yearFilterItems.length === 0) return;
+    
+    // Sync dropdown menu width with button width
+    function syncDropdownWidth() {
+      if (yearFilterButton && yearFilterMenu) {
+        // Get button width
+        const buttonWidth = yearFilterButton.offsetWidth;
+        
+        // Set dropdown menu width to match button width
+        yearFilterMenu.style.width = buttonWidth + 'px';
+        yearFilterMenu.style.minWidth = buttonWidth + 'px';
+        yearFilterMenu.style.maxWidth = buttonWidth + 'px';
+      }
+    }
+    
+    // Sync width on dropdown show
+    if (yearFilterButton && yearFilterMenu) {
+      // Use Bootstrap dropdown events
+      yearFilterButton.addEventListener('show.bs.dropdown', function() {
+        // Small delay to ensure button width is calculated
+        setTimeout(syncDropdownWidth, 10);
+      });
+      
+      // Sync on window resize
+      let resizeTimeout;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(syncDropdownWidth, 100);
+      });
+      
+      // Initial sync after a small delay to ensure DOM is ready
+      setTimeout(syncDropdownWidth, 100);
+    }
+    
+    yearFilterItems.forEach(function(item) {
+      item.addEventListener("click", function(e) {
+        e.preventDefault();
+        
+        // Remove active class from all items
+        yearFilterItems.forEach(function(i) {
+          i.classList.remove("active");
+        });
+        
+        // Add active class to clicked item
+        item.classList.add("active");
+        
+        const selectedYear = item.dataset.year || '';
+        const yearFilterText = document.getElementById("yearFilterText");
+        
+        // Update button text
+        if (selectedYear) {
+          yearFilterText.textContent = selectedYear;
+        } else {
+          yearFilterText.textContent = "Semua Tahun";
+        }
+        
+        const url = new URL(window.location.href);
+        
+        // Update or remove year parameter
+        if (selectedYear) {
+          url.searchParams.set('year', selectedYear);
+        } else {
+          url.searchParams.delete('year');
+        }
+        
+        // Reset to page 1 when filtering
+        url.searchParams.set('page', '1');
+        
+        // Preserve search query if exists
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput && searchInput.value.trim()) {
+          url.searchParams.set('search', searchInput.value.trim());
+        }
+        
+        // Reload page with new filter
+        window.location.href = url.toString();
+      });
+    });
+  }
+
+  // Modal functionality
+  function showModal(pubId, index) {
+    // Try to find publication by pubId first (more reliable)
+    let pub = null;
+    if (pubId && window.publicationsMap && window.publicationsMap[pubId]) {
+      pub = window.publicationsMap[pubId];
+    } else if (index !== undefined && publications[index]) {
+      // Fallback to index if pubId not found
+      pub = publications[index];
+    } else {
+      console.error('Publication not found', { pubId, index });
+      alert('Error: Publication data not found');
+      return;
+    }
+
+    document.getElementById("modalTitle").textContent = pub.title;
+    
+    // Set image with error handling
+    const modalImage = document.getElementById("modalImage");
+    const placeholderImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 200"%3E%3Crect fill="%23f0f0f0" width="150" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="14" font-family="Arial"%3ENo Image%3C/text%3E%3C/svg%3E';
+    
+    // Try to get image from already loaded thumbnail first (find by pubId)
+    let thumbnailSrc = null;
+    if (pubId) {
+      const thumbnailImages = document.querySelectorAll('.publication-thumbnail, .publication-thumbnail-mobile');
+      thumbnailImages.forEach(function(thumbImg) {
+        if (thumbImg.dataset.pubId === pubId) {
+          // Check if thumbnail has been loaded (not the placeholder)
+          if (thumbImg.src && !thumbImg.src.includes('data:image/svg+xml') && thumbImg.src !== placeholderImg) {
+            thumbnailSrc = thumbImg.src;
+          }
+          // Also check data-src if src is still placeholder
+          else if (thumbImg.dataset.src) {
+            thumbnailSrc = thumbImg.dataset.src;
+          }
+        }
+      });
+    }
+    
+    // Set image source - prefer thumbnail if available, otherwise use pub.image
+    const imageToLoad = thumbnailSrc || pub.image;
+    
+    if (imageToLoad && imageToLoad.trim() !== '') {
+      modalImage.src = imageToLoad;
+      modalImage.alt = pub.title || 'Publication image';
+      modalImage.style.display = 'block';
+      modalImage.onerror = function() {
+        // If image fails to load, try the other source or show placeholder
+        if (this.src === thumbnailSrc && pub.image && pub.image.trim() !== '' && pub.image !== imageToLoad) {
+          // Try the original pub.image if thumbnail failed
+          this.src = pub.image;
+        } else {
+          // Both failed, show placeholder
+          this.src = placeholderImg;
+        }
+      };
+      modalImage.onload = function() {
+        this.style.display = 'block';
+      };
+    } else {
+      // If no image URL, show placeholder
+      modalImage.src = placeholderImg;
+      modalImage.alt = 'No image available';
+      modalImage.style.display = 'block';
+    }
+    
+    document.getElementById("modalDate").textContent = pub.date;
+    document.getElementById("modalSize").textContent = pub.size;
+    document.getElementById("modalPubId").textContent = pub.pubId;
+    
+    // Update bookmark button in modal
+    {% if user.is_authenticated %}
+    const modalBookmarkBtn = document.getElementById("modalBookmarkBtn");
+    if (modalBookmarkBtn) {
+      // Find the publication in the list to get bookmark_id
+      const pubElement = document.querySelector(`[data-pub-id="${pub.pubId}"]`);
+      if (pubElement) {
+        const listBookmarkBtn = pubElement.closest('.publication-item')?.querySelector('.bookmark-btn');
+        if (listBookmarkBtn) {
+          const bookmarkId = listBookmarkBtn.dataset.bookmarkId || '';
+          const isBookmarked = listBookmarkBtn.classList.contains('bookmarked');
+          
+          // Use the publication's primary key (id) for bookmark, not pub_id
+          const publicationId = pub.id || '';
+          modalBookmarkBtn.dataset.objectId = String(publicationId);
+          modalBookmarkBtn.dataset.bookmarkId = bookmarkId;
+          
+          const icon = modalBookmarkBtn.querySelector('i');
+          const text = modalBookmarkBtn.querySelector('span');
+          
+          if (isBookmarked) {
+            modalBookmarkBtn.classList.add('bookmarked');
+            icon.classList.remove('bi-bookmark');
+            icon.classList.add('bi-bookmark-fill');
+            if (text) text.textContent = 'Tersimpan';
+          } else {
+            modalBookmarkBtn.classList.remove('bookmarked');
+            icon.classList.remove('bi-bookmark-fill');
+            icon.classList.add('bi-bookmark');
+            if (text) text.textContent = 'Bookmark';
+          }
+        }
+      }
+    }
+    {% endif %}
+    
+    // Clean abstract from special characters like \u000D\u000A (carriage return and line feed)
+    let cleanAbstract = pub.abstract || '';
+    
+    // First, handle literal escape sequences like "\u000D\u000A" (backslash-u-000D-000A)
+    // These are Unicode escape sequences stored as literal strings
+    cleanAbstract = cleanAbstract.replace(/\\u000D\\u000A/gi, ' ');
+    cleanAbstract = cleanAbstract.replace(/\\u000D/gi, ' ');
+    cleanAbstract = cleanAbstract.replace(/\\u000A/gi, ' ');
+    cleanAbstract = cleanAbstract.replace(/\\u0009/gi, ' '); // tab
+    cleanAbstract = cleanAbstract.replace(/\\u000B/gi, ' '); // vertical tab
+    cleanAbstract = cleanAbstract.replace(/\\u000C/gi, ' '); // form feed
+    
+    // Handle other common escape sequences
+    cleanAbstract = cleanAbstract.replace(/\\r\\n/gi, ' ');
+    cleanAbstract = cleanAbstract.replace(/\\n/gi, ' ');
+    cleanAbstract = cleanAbstract.replace(/\\r/gi, ' ');
+    cleanAbstract = cleanAbstract.replace(/\\t/gi, ' ');
+    
+    // Try to decode Unicode escape sequences if they exist as literal strings
+    try {
+      // Replace literal \uXXXX patterns with actual characters, then clean them
+      cleanAbstract = cleanAbstract.replace(/\\u([0-9a-fA-F]{4})/g, function(match, hex) {
+        return String.fromCharCode(parseInt(hex, 16));
+      });
+    } catch (e) {
+      // If decoding fails, continue with original string
+    }
+    
+    // Remove actual carriage return (\r) and line feed (\n) characters
+    cleanAbstract = cleanAbstract.replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ');
+    
+    // Remove Unicode control characters (including \u000D and \u000A)
+    cleanAbstract = cleanAbstract.replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ');
+    
+    // Replace multiple spaces/tabs with single space
+    cleanAbstract = cleanAbstract.replace(/[\s\t]+/g, ' ').trim();
+    
+    document.getElementById("modalAbstract").textContent = cleanAbstract;
+    
+    const modalDownloadBtn = document.getElementById("modalDownload");
+    modalDownloadBtn.setAttribute('data-pub-id', pub.id || '');
+    modalDownloadBtn.setAttribute('data-pub-title', pub.title || 'Publikasi');
+    modalDownloadBtn.href = "{% url 'download-publication' 'PLACEHOLDER' %}".replace('PLACEHOLDER', pub.id || '');
+
+    const modal = new bootstrap.Modal(document.getElementById("publicationModal"));
+    modal.show();
+  }
+
+  // Refresh data - Reload dari database
+  function refreshData() {
+    const btn = event.target.closest("button");
+    const originalContent = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memuat ulang...';
+
+    // Reload halaman untuk mengambil data terbaru dari database
+    location.reload();
+  }
+
+  // Fix all modal close buttons - Universal handler
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle all close buttons with data-bs-dismiss="modal"
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function(closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Find the closest modal
+        const modalElement = this.closest('.modal');
+        if (modalElement) {
+          // Use Bootstrap Modal API to close
+          const modalInstance = bootstrap.Modal.getInstance(modalElement);
+          if (modalInstance) {
+            modalInstance.hide();
+          } else {
+            // If no instance exists, create one and hide it
+            const modal = new bootstrap.Modal(modalElement);
+            modal.hide();
+          }
+        }
+      });
+    });
+  });
+
+  // Handle download clicks with login check
+  document.addEventListener('DOMContentLoaded', function() {
+    const downloadButtons = document.querySelectorAll('.download-publication-btn');
+    downloadButtons.forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        {% if not user.is_authenticated %}
+        e.preventDefault();
+        const pubTitle = this.getAttribute('data-pub-title') || 'publikasi';
+        // Redirect to login page
+        if (typeof showLoginRequiredModal === 'function') {
+          showLoginRequiredModal(pubTitle);
+        } else {
+          // Fallback: show alert and open login modal
+          alert('Ingin mengunduh ' + pubTitle + ' ini? Silakan login terlebih dahulu.');
+          const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+          loginModal.show();
+        }
+        {% endif %}
+      });
+    });
+  });
+
+  // --- Bookmark Functionality ---
+  async function toggleBookmark(button) {
+    // Prevent multiple clicks
+    if (button.disabled) return;
+    button.disabled = true;
+
+    const contentType = button.dataset.contentType;
+    // Ensure objectId is a string, handle array case
+    let objectId = button.dataset.objectId;
+    if (Array.isArray(objectId)) {
+      objectId = String(objectId[0]);
+    } else if (objectId && typeof objectId === 'object') {
+      objectId = String(objectId);
+    } else {
+      objectId = String(objectId || '');
+    }
+    let bookmarkId = button.dataset.bookmarkId;
+    const isBookmarked = button.classList.contains("bookmarked");
+
+    const icon = button.querySelector("i");
+    const text = button.querySelector("span");
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    // Validate required data
+    if (!contentType || !objectId) {
+      console.error("Missing required data:", { contentType, objectId });
+      alert("Data tidak lengkap. Silakan refresh halaman.");
+      button.disabled = false;
+      return;
+    }
+
+    // Try to get CSRF token from cookie first, then from meta tag
+    let csrftoken = getCookie("csrftoken");
+    if (!csrftoken) {
+      const metaTag = document.querySelector('meta[name="csrf-token"]');
+      if (metaTag) {
+        csrftoken = metaTag.getAttribute("content");
+      }
+    }
+
+    if (!csrftoken) {
+      console.error("CSRF token not found");
+      alert("Sesi Anda telah berakhir. Silakan refresh halaman dan login kembali.");
+      button.disabled = false;
+      return;
+    }
+
+    try {
+      if (isBookmarked) {
+        // --- Hapus Bookmark ---
+        if (!bookmarkId) {
+          console.error("Bookmark ID tidak ditemukan untuk penghapusan");
+          button.disabled = false;
+          return;
+        }
+
+        console.log("Deleting bookmark:", { bookmarkId, contentType, objectId });
+        const response = await fetch(`/api/bookmarks/delete/${bookmarkId}/`, {
+          method: "DELETE",
+          headers: { 
+            "X-CSRFToken": csrftoken,
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          credentials: "include",
+        });
+
+        console.log("Delete response status:", response.status);
+        
+        if (response.ok || response.status === 204) {
+          button.classList.remove("bookmarked");
+          icon.classList.remove("bi-bookmark-fill");
+          icon.classList.add("bi-bookmark");
+          if (text) text.textContent = "Bookmark";
+          button.dataset.bookmarkId = "";
+          
+          // Sync with other bookmark buttons for the same item
+          syncBookmarkButtons(contentType, objectId, false, "");
+          
+          // Broadcast change to other tabs
+          if (typeof broadcastBookmarkChange === 'function') {
+            broadcastBookmarkChange(contentType, objectId, false, "");
+          }
+          
+          // Update bookmark list in header
+          if (typeof updateBookmarkList === 'function') {
+            updateBookmarkList();
+          }
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Delete bookmark error:", errorData);
+          alert("Gagal menghapus bookmark: " + (errorData.error || errorData.detail || "Terjadi kesalahan"));
+        }
+      } else {
+        // --- Tambah Bookmark ---
+        const requestBody = { 
+          content_type_name: contentType, 
+          object_id: objectId 
+        };
+        
+        console.log("Adding bookmark:", requestBody);
+        
+        const response = await fetch(`/api/bookmarks/add/`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json", 
+            "X-CSRFToken": csrftoken,
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          credentials: "include",
+          body: JSON.stringify(requestBody),
+        });
+
+        console.log("Add response status:", response.status);
+        const responseData = await response.json().catch(() => ({}));
+        console.log("Add response data:", responseData);
+
+        if (response.ok) {
+          button.classList.add("bookmarked");
+          icon.classList.remove("bi-bookmark");
+          icon.classList.add("bi-bookmark-fill");
+          if (text) text.textContent = "Tersimpan";
+          button.dataset.bookmarkId = String(responseData.id);
+          
+          // Sync with other bookmark buttons for the same item
+          syncBookmarkButtons(contentType, objectId, true, String(responseData.id));
+          
+          // Broadcast change to other tabs
+          if (typeof broadcastBookmarkChange === 'function') {
+            broadcastBookmarkChange(contentType, objectId, true, String(responseData.id));
+          }
+          
+          // Update bookmark list in header
+          if (typeof updateBookmarkList === 'function') {
+            updateBookmarkList();
+          }
+        } else {
+          if (response.status === 409) {
+            // Bookmark already exists, fetch and update UI
+            try {
+              const existingBookmarks = await fetch(`/api/bookmarks/`, {
+                headers: { 
+                  "X-CSRFToken": csrftoken,
+                  "X-Requested-With": "XMLHttpRequest"
+                },
+                credentials: "include",
+              }).then(r => r.json()).catch(() => []);
+              
+              const bookmark = existingBookmarks.find(b => 
+                b.content_type_model === contentType && 
+                String(b.object_id) === String(objectId)
+              );
+              
+              if (bookmark) {
+                button.classList.add("bookmarked");
+                icon.classList.remove("bi-bookmark");
+                icon.classList.add("bi-bookmark-fill");
+                if (text) text.textContent = "Tersimpan";
+                button.dataset.bookmarkId = String(bookmark.id);
+                syncBookmarkButtons(contentType, objectId, true, String(bookmark.id));
+                
+                // Broadcast change to other tabs
+                if (typeof broadcastBookmarkChange === 'function') {
+                  broadcastBookmarkChange(contentType, objectId, true, String(bookmark.id));
+                }
+                
+                // Update bookmark list in header
+                if (typeof updateBookmarkList === 'function') {
+                  updateBookmarkList();
+                }
+              } else {
+                alert("Bookmark sudah ada tetapi tidak dapat ditemukan.");
+              }
+            } catch (fetchError) {
+              console.error("Error fetching existing bookmarks:", fetchError);
+              alert("Bookmark sudah ada di daftar Anda.");
+            }
+          } else {
+            const errorMsg = responseData.error || responseData.detail || responseData.non_field_errors || "Terjadi kesalahan";
+            console.error("Add bookmark error:", responseData);
+            alert("Gagal menambahkan bookmark: " + (Array.isArray(errorMsg) ? errorMsg.join(", ") : errorMsg));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+      alert("Terjadi kesalahan: " + error.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  // Sync bookmark state across all buttons for the same item
+  function syncBookmarkButtons(contentType, objectId, isBookmarked, bookmarkId) {
+    // Find all bookmark buttons for this item
+    const allButtons = document.querySelectorAll(`.bookmark-btn[data-content-type="${contentType}"][data-object-id="${objectId}"]`);
+    
+    allButtons.forEach(btn => {
+      const icon = btn.querySelector("i");
+      const text = btn.querySelector("span");
+      
+      if (isBookmarked) {
+        btn.classList.add("bookmarked");
+        icon.classList.remove("bi-bookmark");
+        icon.classList.add("bi-bookmark-fill");
+        btn.dataset.bookmarkId = bookmarkId;
+        if (text) text.textContent = "Tersimpan";
+      } else {
+        btn.classList.remove("bookmarked");
+        icon.classList.remove("bi-bookmark-fill");
+        icon.classList.add("bi-bookmark");
+        btn.dataset.bookmarkId = "";
+        if (text) text.textContent = "Bookmark";
+      }
+    });
+  }
+
+  // Cross-tab bookmark synchronization using localStorage
+  function broadcastBookmarkChange(contentType, objectId, isBookmarked, bookmarkId) {
+    const bookmarkData = {
+      contentType,
+      objectId: String(objectId),
+      isBookmarked,
+      bookmarkId: String(bookmarkId || ''),
+      timestamp: Date.now()
+    };
+    
+    console.log('Broadcasting bookmark change:', bookmarkData);
+    
+    // Save to localStorage (triggers storage event in other tabs)
+    localStorage.setItem('bookmark_change', JSON.stringify(bookmarkData));
+    
+    // Dispatch custom event for immediate same-tab sync
+    window.dispatchEvent(new CustomEvent('bookmarkChanged', {
+      detail: bookmarkData
+    }));
+  }
+
+  // Listen for bookmark changes from other tabs
+  {% if user.is_authenticated %}
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'bookmark_change' && e.newValue) {
+      try {
+        const bookmarkData = JSON.parse(e.newValue);
+        const { contentType, objectId, isBookmarked, bookmarkId } = bookmarkData;
+        
+        console.log('Bookmark change from storage:', bookmarkData);
+        
+        // Sync bookmark buttons in current tab
+        if (typeof syncBookmarkButtons === 'function') {
+          syncBookmarkButtons(contentType, objectId, isBookmarked, bookmarkId);
+        }
+        
+        // Update bookmark list in header
+        if (typeof updateBookmarkList === 'function') {
+          updateBookmarkList();
+        }
+      } catch (error) {
+        console.error('Error parsing bookmark change:', error);
+      }
+    }
+  });
+
+  // Listen for custom events (same-tab immediate sync)
+  window.addEventListener('bookmarkChanged', function(e) {
+    const { contentType, objectId, isBookmarked, bookmarkId } = e.detail;
+    console.log('Bookmark change from custom event:', e.detail);
+    
+    if (typeof syncBookmarkButtons === 'function') {
+      syncBookmarkButtons(contentType, objectId, isBookmarked, bookmarkId);
+    }
+    
+    if (typeof updateBookmarkList === 'function') {
+      updateBookmarkList();
+    }
+  });
+  {% endif %}
+
+  // Make functions available globally
+  window.broadcastBookmarkChange = broadcastBookmarkChange;
+  window.syncBookmarkButtons = syncBookmarkButtons;
+</script>
+{% endblock %}

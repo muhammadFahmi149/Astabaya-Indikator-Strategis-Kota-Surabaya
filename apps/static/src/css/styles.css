@@ -1,0 +1,286 @@
+/* Override rules loaded after templatemo CSS */
+.main-banner {
+  padding: 90px 0 !important;
+}
+
+.main-banner h6 {
+  text-transform: none !important;
+}
+
+#about .icon {
+  margin: 0px !important;
+}
+
+#about .col-lg-6 {
+  padding: 10px !important;
+}
+
+/* Footer Styling */
+footer {
+  background-color: white;
+  padding: 40px 0 20px 0;
+}
+
+footer .social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+}
+
+footer .social-link {
+  font-size: 24px;
+  color: #999;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer .social-link:hover {
+  color: #03a4ed;
+}
+
+footer .contact-footer p {
+  color: #888;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+footer p {
+  color: #aaa;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Person Graphic Image Styling */
+.left-image {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  min-height: 400px !important;
+}
+
+img.person-graphic {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 600px !important;
+  object-fit: contain !important;
+}
+
+/* About Section Item Styling */
+.services .item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+.services .item .icon {
+  min-width: 80px !important;
+  flex-shrink: 0 !important;
+}
+
+.services .item .icon img {
+  width: 80px !important;
+  height: 80px !important;
+  object-fit: contain !important;
+}
+
+.services .item .right-text {
+  flex: 1 !important;
+}
+
+.services .item h4 {
+  margin: 0 0 8px 0 !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.services .item p {
+  margin: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* Person Graphic Image Styling */
+img.person-graphic {
+  width: 100%;
+  height: auto;
+  max-width: none;
+  object-fit: contain;
+}
+
+.main-banner .start-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  background-color: #a0c3cf;
+  color: white;
+  text-decoration: none;
+  border-radius: 23px;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  z-index: 10;
+
+  opacity: 1 !important;
+
+  /* posisi awal animasi geser */
+  transform: translateX(-70px);
+  animation: slideIn 0.9s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.main-banner .start-btn:hover {
+  background-color: #03a4ed !important;
+}
+
+/* Keyframe animasi geser */
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ===========================
+  RESPONSIVE HP & TABLET
+=========================== */
+@media (max-width: 992px) {
+  /* Semua elemen menjadi urutan fleksibel */
+  .main-flex {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  /* Jadikan isinya jadi child dari .main-flex */
+  .left-col,
+  .right-col,
+  .left-content {
+    display: contents;
+  }
+
+  /* URUTAN BARU */
+  .left-content h2 {
+    order: 1;
+    width: 100%;
+  }
+
+  .right-image {
+    order: 2;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .start-btn {
+    order: 3;
+  }
+
+  .left-content h6 {
+    order: 4;
+    width: 100%;
+  }
+
+  .left-content p {
+    order: 5;
+    padding: 0 20px;
+    margin: 0px !important;
+    width: 100%;
+  }
+
+  /* Style gambar */
+  .right-image img {
+    width: 80%;
+    margin: 10px auto 15px;
+    display: block;
+  }
+
+  /* Style button */
+  .main-banner .start-btn {
+    display: block;
+    width: fit-content;
+    margin: 15px auto;
+    padding: 12px 24px;
+    font-size: 16px;
+    position: relative;
+    z-index: 10;
+    transform: none;
+    animation: none;
+  }
+
+  .main-banner .start-btn:hover {
+    background-color: #03a4ed !important;
+  }
+
+  img.person-graphic {
+    display: none;
+  }
+
+  #services {
+    margin-top: 0px !important;
+  }
+
+  /* Ensure all items in about section have consistent width */
+  .services .row .col-lg-6 {
+    width: 100% !important;
+  }
+
+  .services .row .col-lg-6 .item {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Pastikan layout tetap bekerja di mobile */
+  .main-flex {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .left-col,
+  .right-col,
+  .left-content {
+    display: contents;
+  }
+
+  .main-banner .start-btn {
+    display: block;
+    width: fit-content;
+    margin: 15px auto;
+    padding: 12px 24px;
+    font-size: 16px;
+    position: relative;
+    z-index: 10;
+    transform: none;
+    animation: none;
+  }
+
+  .main-banner .start-btn:hover {
+    background-color: #03a4ed !important;
+  }
+
+  .right-image img {
+    width: 85%;
+    margin: 0 15px;
+    display: block;
+  }
+
+  img.person-graphic {
+    display: none;
+  }
+
+  #services {
+    margin-top: 0px !important;
+  }
+
+  /* Ensure all items in about section have consistent width */
+  .services .row .col-lg-6 {
+    width: 100% !important;
+  }
+
+  .services .row .col-lg-6 .item {
+    width: 100%;
+  }
+}

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astabaya - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+
+    <style>
+      /* Gaya Kustom yang Tidak Ada di Bootstrap */
+      body {
+        font-family: "Poppins", sans-serif;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("{% static 'img/background-login-register.jpg' %}") no-repeat center center;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+        margin: 0;
+      }
+
+      /* Container Box kustom - DIPERBAIKI */
+      .custom-container {
+        position: relative;
+        z-index: 1;
+        background: rgba(225, 224, 224, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 24px;
+        padding: 25px 40px;
+        padding-top: 30px;
+        width: 100%;
+        max-width: 240px;
+        height: auto;
+        min-height: 420px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37), inset 0 1px 2px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        text-align: center;
+      }
+
+      h2 {
+        font-size: 25px;
+        font-family: sans-serif;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0px;
+        text-align: center;
+        letter-spacing: -0.5px;
+      }
+
+      .text-whitemb-4 {
+        font-size: 25px;
+        font-family: sans-serif;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0px;
+        text-align: center;
+        letter-spacing: -0.5px;
+      }
+
+      h3 {
+        font-size: 15px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        font-weight: 400;
+        color: #fff;
+        margin-bottom: 20px;
+        margin-top: 7px;
+        text-align: center;
+        letter-spacing: -0.5px;
+      }
+
+      /* Gaya kustom untuk form wrapper */
+      .form-control-custom {
+        width: 100%;
+        padding: 8px 16px;
+        font-family: "Poppins", system-ui, -apple-system, sans-serif;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        outline: none;
+        box-sizing: border-box;
+      }
+
+      .form-control-custom::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .form-control-custom:focus {
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      }
+
+      /* Perbaikan untuk div text-start */
+      .text-start {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 0;
+      }
+
+      .text-start input {
+        width: 100%;
+      }
+
+      /* Gaya kustom untuk tombol Sign Up - DIPERBAIKI */
+      .btn-signup-custom {
+        width: 100%;
+        padding: 8px;
+        background: linear-gradient(135deg, #258ffa 0%, #1c7dd8 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        justify-content: center;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .btn-signup-custom:hover {
+        transform: scale(1.05);
+        background: linear-gradient(90deg, #ff4b2b, #ff416c);
+      }
+
+      .btn-signup-custom:active {
+        transform: translateY(0);
+      }
+
+      /* Gaya kustom untuk tombol Login - DIPERBAIKI */
+      .btn-login-custom {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .btn-login-custom:hover {
+        text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+        text-decoration: none;
+      }
+
+      /* Styling untuk logo */
+      img {
+        border-radius: 0;
+        margin-bottom: 8px;
+        max-width: 160px;
+        height: auto;
+      }
+
+      /* Styling untuk login section */
+      .login-section {
+        margin-top: 0px;
+        padding-top: 0px;
+      }
+
+      .login-section p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0;
+      }
+
+      /* Gap untuk form elements */
+      #signup-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* Error message styling */
+      .error-message {
+        color: #ff6b6b;
+        font-size: 13px;
+        margin-top: 8px;
+        display: none;
+        text-align: left;
+        padding: 8px 12px;
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 8px;
+        border-left: 3px solid #ff6b6b;
+      }
+
+      /* Mobile Responsive Styles */
+      @media screen and (max-width: 768px) {
+        body {
+          padding: 20px;
+          min-height: 100vh;
+          display: flex;
+        }
+
+        .custom-container {
+          max-width: 380px;
+          width: 90%;
+          padding: 35px 32px;
+          min-height: auto;
+          margin: auto;
+        }
+
+        h2,
+        .text-whitemb-4 {
+          font-size: 24px;
+          margin-bottom: 2px;
+        }
+
+        h3 {
+          font-size: 15px;
+          margin-bottom: 18px;
+        }
+
+        .form-control-custom {
+          font-size: 16px;
+          padding: 12px 16px;
+        }
+
+        .btn-signup-custom {
+          padding: 12px;
+          font-size: 15px;
+        }
+
+        .login-section p {
+          font-size: 14px;
+        }
+
+        #signup-form {
+          gap: 16px;
+        }
+
+        img {
+          max-width: 140px;
+          margin-bottom: 6px;
+        }
+      }
+
+      /* Extra Small Mobile */
+      @media screen and (max-width: 380px) {
+        .custom-container {
+          max-width: 340px;
+          width: 88%;
+          padding: 32px 28px;
+        }
+
+        h2,
+        .text-whitemb-4 {
+          font-size: 23px;
+        }
+
+        h3 {
+          font-size: 14px;
+        }
+
+        .form-control-custom {
+          padding: 11px 14px;
+          font-size: 16px;
+        }
+
+        .btn-signup-custom {
+          padding: 11px;
+          font-size: 14px;
+        }
+
+        #signup-form {
+          gap: 14px;
+        }
+
+        img {
+          max-width: 130px;
+        }
+      }
+
+      /* Very Small Screens */
+      @media screen and (max-width: 320px) {
+        .custom-container {
+          width: 90%;
+          padding: 28px 24px;
+        }
+
+        h2,
+        .text-whitemb-4 {
+          font-size: 21px;
+        }
+
+        h3 {
+          font-size: 13px;
+        }
+
+        img {
+          max-width: 120px;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="d-flex justify-content-center align-items-center">
+    <div class="custom-container w-100" style="max-width: 350px">
+      <img src="{% static 'icon/logoastabayav2.png' %}" alt="Logo Astabaya" width="150" />
+      <h2 class="text-whitemb-4">Selamat Datang</h2>
+      <h3>Buat akun anda</h3>
+
+      <form id="signup-form" class="d-flex flex-column gap-3">
+        {% csrf_token %}
+        <div class="text-start">
+          <label for="username" class="form-label visually-hidden">Username</label>
+          <input type="text" name="username" placeholder="Username" required class="form-control form-control-custom" />
+        </div>
+
+        <div class="text-start">
+          <label for="email" class="form-label visually-hidden">Email</label>
+          <input type="email" name="email" placeholder="Email" required class="form-control form-control-custom" />
+        </div>
+
+        <div class="text-start">
+          <label for="password1" class="form-label visually-hidden">Password</label>
+          <input type="password" name="password" placeholder="Password" required class="form-control form-control-custom" />
+        </div>
+
+        <p id="password-error" class="error-message">⚠️ Password jangan terlalu umum.</p>
+
+        <button type="submit" class="btn-signup-custom">Daftar</button>
+
+        <div class="text-center" style="margin: 0;">
+          <p style="color: rgba(255, 255, 255, 0.7); margin: 0 0 10px 0;">atau</p>
+          <button type="button" onclick="signInWithGoogle()" style="width: 100%; padding: 10px; border: 1px solid #dadce0; background: #fff; color: #3c4043; font-size: 14px; font-weight: 500; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-sizing: border-box;">
+            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+              <g fill="#000" fill-rule="evenodd">
+                <path d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z" fill="#EA4335"/>
+                <path d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.21 1.18-.84 2.18-1.79 2.85l2.75 2.13c1.66-1.52 2.72-3.76 2.72-6.48z" fill="#4285F4"/>
+                <path d="M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z" fill="#FBBC05"/>
+                <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.75-2.13c-.76.53-1.78.9-3.21.9-2.38 0-4.4-1.57-5.12-3.74L.96 13.04C2.45 15.98 5.48 18 9 18z" fill="#34A853"/>
+              </g>
+            </svg>
+            Daftar dengan Google
+          </button>
+        </div>
+        <div class="login-section">
+          <p class="mb-2">Sudah Memiliki Akun? <a href="{% url 'login' %}" class="btn-login-custom">Masuk</a></p>
+        </div>
+      </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script>
+      // Handle Google Sign-In with redirect (same tab, no popup)
+      function signInWithGoogle() {
+        const clientId = '477948872524-8h48o7jmg3seadns5ddmb7hpi336e5a5.apps.googleusercontent.com';
+        let redirectUri;
+        if (window.location.hostname === 'localhost') {
+          redirectUri = 'http://localhost:8000/accounts/google/login/callback/';
+        } else {
+          redirectUri = 'http://127.0.0.1:8000/accounts/google/login/callback/';
+        }
+        redirectUri = encodeURIComponent(redirectUri);
+        const scope = encodeURIComponent('openid email profile');
+        const responseType = 'code';
+        const state = 'google_login';
+        
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+          `client_id=${clientId}&` +
+          `redirect_uri=${redirectUri}&` +
+          `response_type=${responseType}&` +
+          `scope=${scope}&` +
+          `state=${state}&` +
+          `access_type=online&` +
+          `prompt=select_account`;
+        
+        window.location.href = googleAuthUrl;
+      }
+    </script>
+    <script>
+      document.getElementById("signup-form").addEventListener("submit", async function (event) {
+        event.preventDefault(); // Mencegah form dari submit default
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const csrfToken = data.csrfmiddlewaretoken;
+
+        const passwordError = document.getElementById("password-error");
+        passwordError.style.display = "none"; // Sembunyikan pesan error sebelumnya
+
+        try {
+          const response = await fetch("{% url 'api-register' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (response.ok) {
+            // Jika registrasi berhasil (status 201 CREATED)
+            alert("Registration successful! Please log in.");
+            window.location.href = "{% url 'login' %}"; // Arahkan ke halaman login
+          } else {
+            // Jika ada error dari server
+            const errorData = await response.json();
+            const errorMessage = Object.values(errorData).flat().join("\n");
+            passwordError.textContent = `⚠️ ${errorMessage}`;
+            passwordError.style.display = "block";
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          passwordError.textContent = "⚠️ An unexpected error occurred. Please try again.";
+          passwordError.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>

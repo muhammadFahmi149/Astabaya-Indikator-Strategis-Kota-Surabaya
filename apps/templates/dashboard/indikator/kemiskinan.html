@@ -1,0 +1,1680 @@
+{% extends 'dashboard/dashboard.html' %} 
+{% load static %}
+{% block dashboard_content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<div class="container py-4">
+  <h3 class="font-weight-bold mb-4">Kemiskinan</h3>
+  
+  <!-- Summary Cards -->
+  <div class="row mb-4 summary-cards-row">
+    <!-- Jumlah Penduduk Miskin -->
+    <div class="col-6 col-md-4 col-lg mb-3 summary-card-mobile">
+      <div class="summary-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Jumlah Penduduk Miskin</h6>
+          <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_surabaya and latest_surabaya.jumlah_penduduk_miskin %}
+              {{ latest_surabaya.jumlah_penduduk_miskin|floatformat:2 }} <span style="font-size: 16px; font-weight: 400;">ribu</span>
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if surabaya_changes.jumlah_penduduk_miskin is not None %}
+              {% if surabaya_changes.jumlah_penduduk_miskin > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ surabaya_changes.jumlah_penduduk_miskin|floatformat:2 }} <span style="font-size: 10px;">ribu</span></span>
+              {% elif surabaya_changes.jumlah_penduduk_miskin < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ surabaya_changes.jumlah_penduduk_miskin|floatformat:2 }} <span style="font-size: 10px;">ribu</span></span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_surabaya %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_surabaya.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
+            {% if latest_surabaya %}
+              Tahun {{ latest_surabaya.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Persentase Kemiskinan -->
+    <div class="col-6 col-md-4 col-lg mb-3 summary-card-mobile">
+      <div class="summary-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Persentase Kemiskinan</h6>
+          <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_surabaya and latest_surabaya.persentase_penduduk_miskin %}
+              {{ latest_surabaya.persentase_penduduk_miskin|floatformat:2 }}%
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if surabaya_changes.persentase_penduduk_miskin is not None %}
+              {% if surabaya_changes.persentase_penduduk_miskin > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ surabaya_changes.persentase_penduduk_miskin|floatformat:2 }}%</span>
+              {% elif surabaya_changes.persentase_penduduk_miskin < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ surabaya_changes.persentase_penduduk_miskin|floatformat:2 }}%</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_surabaya %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_surabaya.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
+            {% if latest_surabaya %}
+              Tahun {{ latest_surabaya.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indeks Kedalaman (P1) -->
+    <div class="col-6 col-md-4 col-lg mb-3 summary-card-mobile">
+      <div class="summary-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Indeks Kedalaman (P1)</h6>
+          <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_surabaya and latest_surabaya.indeks_kedalaman_kemiskinan_p1 %}
+              {{ latest_surabaya.indeks_kedalaman_kemiskinan_p1|floatformat:2 }}
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if surabaya_changes.indeks_kedalaman_kemiskinan_p1 is not None %}
+              {% if surabaya_changes.indeks_kedalaman_kemiskinan_p1 > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ surabaya_changes.indeks_kedalaman_kemiskinan_p1|floatformat:2 }}</span>
+              {% elif surabaya_changes.indeks_kedalaman_kemiskinan_p1 < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ surabaya_changes.indeks_kedalaman_kemiskinan_p1|floatformat:2 }}</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_surabaya %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_surabaya.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
+            {% if latest_surabaya %}
+              Tahun {{ latest_surabaya.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indeks Keparahan (P2) -->
+    <div class="col-6 col-md-4 col-lg mb-3 summary-card-mobile">
+      <div class="summary-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Indeks Keparahan (P2)</h6>
+          <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_surabaya and latest_surabaya.indeks_keparahan_kemiskinan_p2 %}
+              {{ latest_surabaya.indeks_keparahan_kemiskinan_p2|floatformat:2 }}
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if surabaya_changes.indeks_keparahan_kemiskinan_p2 is not None %}
+              {% if surabaya_changes.indeks_keparahan_kemiskinan_p2 > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ surabaya_changes.indeks_keparahan_kemiskinan_p2|floatformat:2 }}</span>
+              {% elif surabaya_changes.indeks_keparahan_kemiskinan_p2 < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ surabaya_changes.indeks_keparahan_kemiskinan_p2|floatformat:2 }}</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_surabaya %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_surabaya.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
+            {% if latest_surabaya %}
+              Tahun {{ latest_surabaya.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garis Kemiskinan -->
+    <div class="col-6 col-md-4 col-lg mb-3 summary-card-mobile">
+      <div class="summary-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+        <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Garis Kemiskinan</h6>
+          <h3 style="font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_surabaya and latest_surabaya.garis_kemiskinan %}
+              <span class="garis-kemiskinan-value">Rp {{ latest_surabaya.garis_kemiskinan|floatformat:0 }}</span>
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if surabaya_changes.garis_kemiskinan is not None %}
+              {% if surabaya_changes.garis_kemiskinan > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;" class="garis-kemiskinan-change">+Rp {{ surabaya_changes.garis_kemiskinan|floatformat:0 }}</span>
+              {% elif surabaya_changes.garis_kemiskinan < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;" class="garis-kemiskinan-change">Rp {{ surabaya_changes.garis_kemiskinan|floatformat:0 }}</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_surabaya %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_surabaya.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
+            {% if latest_surabaya %}
+              Tahun {{ latest_surabaya.year }} (Rp/kap/bulan)
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 Visualisasi Data Surabaya -->
+  <div class="row mb-4">
+    <!-- Kolom 1.1: Jumlah dan Persentase Penduduk Miskin -->
+    <div class="col-md-6 mb-3">
+      <div class="dashboard-card" style="position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h5 class="mb-0">Tren Jumlah dan Persentase Penduduk Miskin</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadChart1Dropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadChart1Dropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadChart1Excel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadChart1PNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container-mobile">
+        <div id="chart1" style="width: 100%; height: 350px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom 1.2: Garis Kemiskinan -->
+    <div class="col-md-6 mb-3">
+      <div class="dashboard-card" style="position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h5 class="mb-0">Tren Garis Kemiskinan</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadChart2Dropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadChart2Dropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadChart2Excel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadChart2PNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container-mobile">
+        <div id="chart2" style="width: 100%; height: 350px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom 2.1: Indeks Kedalaman (P1) -->
+    <div class="col-md-6 mb-3">
+      <div class="dashboard-card" style="position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h5 class="mb-0">Tren Indeks Kedalaman (P1)</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadChart3Dropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadChart3Dropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadChart3Excel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadChart3PNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container-mobile">
+        <div id="chart3" style="width: 100%; height: 350px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kolom 2.2: Indeks Keparahan (P2) -->
+    <div class="col-md-6 mb-3">
+      <div class="dashboard-card" style="position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h5 class="mb-0">Tren Indeks Keparahan (P2)</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadChart4Dropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadChart4Dropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadChart4Excel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadChart4PNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="chart-container-mobile">
+        <div id="chart4" style="width: 100%; height: 350px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visualisasi Perbandingan Surabaya vs Jawa Timur -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="dashboard-card" style="position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h5 class="mb-0">Perbandingan Surabaya vs Jawa Timur</h5>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadComparisonDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 5px 10px; border-radius: 5px;">
+              <i class="fas fa-download"></i> <span>Unduh</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="downloadComparisonDropdown" style="border-radius: 8px; min-width: 100%;">
+              <li><a class="dropdown-item" href="#" id="downloadComparisonExcel" style="border-radius: 4px;"><i class="fas fa-file-excel"></i> Excel</a></li>
+              <li><a class="dropdown-item" href="#" id="downloadComparisonPNG" style="border-radius: 4px;"><i class="fas fa-image"></i> PNG</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="mb-3">
+          <select id="indicatorSelector" class="form-control" style="width: auto; max-width: 300px;">
+            <option value="jumlah_penduduk_miskin">Jumlah Penduduk Miskin</option>
+            <option value="persentase_penduduk_miskin">Persentase Penduduk Miskin</option>
+            <option value="indeks_kedalaman_kemiskinan_p1">Indeks Kedalaman (P1)</option>
+            <option value="indeks_keparahan_kemiskinan_p2">Indeks Keparahan (P2)</option>
+            <option value="garis_kemiskinan">Garis Kemiskinan</option>
+          </select>
+        </div>
+        <div class="chart-container-mobile">
+        <div id="comparisonChart" style="width: 100%; height: 400px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Info Card -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="dashboard-card" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+        <h5 class="mb-3"><i class="fas fa-info-circle"></i> Tentang Kemiskinan</h5>
+        <p style="margin-bottom: 0; line-height: 1.8;">
+          <strong>Kemiskinan</strong> adalah kondisi ketidakmampuan seseorang atau rumah tangga untuk memenuhi kebutuhan dasar hidupnya. 
+          Di Indonesia, kemiskinan diukur menggunakan pendekatan kebutuhan dasar (basic needs approach) yang mencakup:
+        </p>
+        <ul style="margin-top: 12px; margin-bottom: 0; line-height: 1.8;">
+          <li><strong>Garis Kemiskinan</strong>: Batas minimum pengeluaran per kapita per bulan untuk memenuhi kebutuhan dasar makanan dan non-makanan</li>
+          <li><strong>Jumlah Penduduk Miskin</strong>: Jumlah penduduk yang pengeluarannya berada di bawah garis kemiskinan</li>
+          <li><strong>Persentase Penduduk Miskin</strong>: Proporsi penduduk miskin terhadap total penduduk</li>
+          <li><strong>Indeks Kedalaman Kemiskinan (P1)</strong>: Mengukur rata-rata kesenjangan pengeluaran penduduk miskin terhadap garis kemiskinan</li>
+          <li><strong>Indeks Keparahan Kemiskinan (P2)</strong>: Mengukur ketimpangan pengeluaran di antara penduduk miskin</li>
+        </ul>
+        <p style="margin-top: 12px; margin-bottom: 16px; line-height: 1.8;">
+          Semakin tinggi nilai P1 dan P2, semakin dalam dan parah kondisi kemiskinan di suatu wilayah. 
+          Indikator-indikator ini membantu pemerintah dalam merancang program pengentasan kemiskinan yang lebih tepat sasaran.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dashboard-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Mobile responsive: 3 baris x 2 kolom */
+  @media (max-width: 767.98px) {
+    .summary-card-mobile {
+      flex: 0 0 50% !important;
+      max-width: 50% !important;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+    }
+    
+    .summary-card-mobile .summary-card {
+      padding: 12px !important;
+      min-height: auto !important;
+      height: auto !important;
+    }
+    
+    .summary-card-mobile .summary-card[style*="min-height: 160px"] {
+      min-height: auto !important;
+    }
+    
+    .summary-card-mobile .summary-card > div[style*="position: relative"] {
+      margin: 0 !important;
+      padding: 0 !important;
+      flex: 0 0 auto !important;
+    }
+    
+    .summary-card-mobile .summary-card > div[style*="flex: 1"] {
+      flex: 0 0 auto !important;
+    }
+    
+    .summary-card-mobile h6 {
+      font-size: 11px !important;
+      margin-bottom: 6px !important;
+    }
+    
+    .summary-card-mobile h3 {
+      font-size: 20px !important;
+      margin-bottom: 4px !important;
+      line-height: 1.1 !important;
+    }
+    
+    .summary-card-mobile small {
+      font-size: 10px !important;
+      margin-top: 4px !important;
+      margin-bottom: 0 !important;
+      line-height: 1.2 !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 12px"] {
+      font-size: 10px !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 11px"] {
+      font-size: 9px !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 16px"] {
+      font-size: 14px !important;
+    }
+    
+    .summary-card-mobile > div[style*="display: flex"][style*="align-items: center"] {
+      margin-top: 4px !important;
+      margin-bottom: 0 !important;
+    }
+    
+    /* Hilangkan space kosong di bawah */
+    .summary-card-mobile .summary-card {
+      padding-bottom: 10px !important;
+    }
+    
+    .summary-card-mobile .summary-card > div[style*="position: relative"] > *:last-child {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .summary-card-mobile .summary-card > div[style*="position: relative"] > small[style*="margin-top: auto"] {
+      margin-top: 4px !important;
+    }
+    
+    /* Chart responsive dengan horizontal scroll */
+    .chart-container-mobile {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    .chart-container-mobile > div {
+      min-width: 500px !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+    
+    .dashboard-card {
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    
+    .dashboard-card h5 {
+      font-size: 16px !important;
+      white-space: normal !important;
+      word-wrap: break-word !important;
+    }
+    
+    /* Download button responsive */
+    .dashboard-card button[id*="download"] {
+      padding: 3px 8px !important;
+      font-size: 11px !important;
+    }
+    
+    .dashboard-card button[id*="download"] i {
+      font-size: 10px !important;
+    }
+    
+    .dashboard-card button[id*="download"] span {
+      display: none;
+    }
+  }
+  
+  /* Desktop: chart container normal - tidak scroll */
+  @media (min-width: 768px) {
+    .chart-container-mobile {
+      width: 100%;
+      max-width: 100%;
+      overflow: visible;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .chart-container-mobile > div {
+      min-width: auto !important;
+      width: 100% !important;
+    }
+    
+    .dashboard-card {
+      overflow: visible;
+    }
+    
+    /* Desktop: Rapikan summary cards */
+    .summary-card-mobile {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    
+    .summary-card-mobile .summary-card {
+      padding: 18px !important;
+      min-height: 160px !important;
+      height: 100%;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    
+    .summary-card-mobile .summary-card > div[style*="position: relative"] {
+      flex: 1;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between;
+    }
+    
+    .summary-card-mobile h6 {
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      margin: 0 0 12px 0 !important;
+      line-height: 1.4 !important;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      word-wrap: break-word;
+    }
+    
+    .summary-card-mobile h3 {
+      font-size: 26px !important;
+      font-weight: 700 !important;
+      line-height: 1.2 !important;
+      margin: 0 0 10px 0 !important;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    .summary-card-mobile h3 span {
+      font-size: 14px !important;
+      font-weight: 400 !important;
+    }
+    
+    .summary-card-mobile > div[style*="display: flex"][style*="align-items: center"],
+    .summary-card-mobile .summary-card > div[style*="position: relative"] > div[style*="display: flex"] {
+      margin-top: 8px !important;
+      margin-bottom: 0 !important;
+      flex-wrap: wrap;
+      gap: 4px !important;
+      align-items: center !important;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 12px"] {
+      font-size: 11px !important;
+      line-height: 1.4 !important;
+      white-space: nowrap;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 11px"] {
+      font-size: 10px !important;
+      line-height: 1.4 !important;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    
+    .summary-card-mobile span[style*="font-size: 10px"] {
+      font-size: 9px !important;
+      white-space: normal;
+    }
+    
+    .summary-card-mobile small {
+      font-size: 10px !important;
+      margin-top: auto !important;
+      margin-bottom: 0 !important;
+      line-height: 1.4 !important;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  }
+  
+  /* Pastikan container tidak overflow saat sidebar dibuka */
+  .container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  .dashboard-card {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Download button styles */
+  .dashboard-card button[id*="download"] {
+    white-space: nowrap;
+  }
+  
+  @media (max-width: 576px) {
+    .dashboard-card button[id*="download"] {
+      padding: 4px 6px !important;
+      font-size: 10px !important;
+    }
+    
+    .dashboard-card button[id*="download"] i {
+      font-size: 12px !important;
+      margin: 0 !important;
+    }
+  }
+  
+  /* Desktop: Pastikan summary cards rapi dan responsive terhadap sidebar */
+  @media (min-width: 768px) {
+    .summary-cards-row {
+      margin-left: -8px;
+      margin-right: -8px;
+      display: flex;
+      flex-wrap: nowrap;
+    }
+    
+    .summary-cards-row > .summary-card-mobile {
+      padding-left: 8px;
+      padding-right: 8px;
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 100%;
+    }
+    
+    /* Pastikan cards memiliki tinggi yang sama */
+    .summary-cards-row > .summary-card-mobile .summary-card {
+      height: 100%;
+    }
+  }
+  
+  /* Untuk layar besar (lg), pastikan 5 cards memenuhi space secara merata */
+  @media (min-width: 992px) {
+    .summary-cards-row > .summary-card-mobile {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+</style>
+
+<script>
+  // Function to format number with thousand separators (Indonesian format using dot)
+  function formatRupiah(number) {
+    if (number === null || number === undefined || isNaN(number)) return '';
+    const numStr = Math.abs(number).toString().split('.')[0];
+    const formatted = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return number < 0 ? '-' + formatted : formatted;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Format garis kemiskinan values in summary cards
+    const garisKemiskinanValue = document.querySelector('.garis-kemiskinan-value');
+    if (garisKemiskinanValue) {
+      const text = garisKemiskinanValue.textContent.trim();
+      const match = text.match(/Rp\s*([\d.-]+)/);
+      if (match) {
+        const number = parseFloat(match[1].replace(/\./g, ''));
+        if (!isNaN(number)) {
+          garisKemiskinanValue.textContent = 'Rp ' + formatRupiah(number);
+        }
+      }
+    }
+
+    const garisKemiskinanChanges = document.querySelectorAll('.garis-kemiskinan-change');
+    garisKemiskinanChanges.forEach(element => {
+      const text = element.textContent.trim();
+      const match = text.match(/([+-]?)Rp\s*([\d.-]+)/);
+      if (match) {
+        const sign = match[1];
+        const number = parseFloat(match[2].replace(/\./g, ''));
+        if (!isNaN(number)) {
+          element.textContent = sign + 'Rp ' + formatRupiah(number);
+        }
+      }
+    });
+
+    // Prepare data from Django template
+    const surabayaData = [
+      {% for data in surabaya_data %}
+      {
+        year: {{ data.year }},
+        jumlah_penduduk_miskin: {{ data.jumlah_penduduk_miskin|default:"null" }},
+        persentase_penduduk_miskin: {{ data.persentase_penduduk_miskin|default:"null" }},
+        indeks_kedalaman_kemiskinan_p1: {{ data.indeks_kedalaman_kemiskinan_p1|default:"null" }},
+        indeks_keparahan_kemiskinan_p2: {{ data.indeks_keparahan_kemiskinan_p2|default:"null" }},
+        garis_kemiskinan: {{ data.garis_kemiskinan|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const jatimData = [
+      {% for data in jatim_data %}
+      {
+        year: {{ data.year }},
+        jumlah_penduduk_miskin: {{ data.jumlah_penduduk_miskin|default:"null" }},
+        persentase_penduduk_miskin: {{ data.persentase_penduduk_miskin|default:"null" }},
+        indeks_kedalaman_kemiskinan_p1: {{ data.indeks_kedalaman_kemiskinan_p1|default:"null" }},
+        indeks_keparahan_kemiskinan_p2: {{ data.indeks_keparahan_kemiskinan_p2|default:"null" }},
+        garis_kemiskinan: {{ data.garis_kemiskinan|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // Sort data by year
+    surabayaData.sort((a, b) => a.year - b.year);
+    jatimData.sort((a, b) => a.year - b.year);
+
+    // Get last 10 years for comparison chart
+    const allYears = [...new Set([...surabayaData.map(d => d.year), ...jatimData.map(d => d.year)])].sort();
+    const last10Years = allYears.slice(-10);
+
+    // Get last 5 years for chart 1
+    const last5Years = allYears.slice(-5);
+
+    // Filter data to last 10 years for comparison
+    const surabayaDataLast10 = surabayaData.filter(d => last10Years.includes(d.year));
+    const jatimDataLast10 = jatimData.filter(d => last10Years.includes(d.year));
+
+    // Filter data to last 5 years for chart 1
+    const surabayaDataLast5 = surabayaData.filter(d => last5Years.includes(d.year));
+
+    // Check if mobile
+    const isMobile = window.innerWidth <= 767.98;
+    
+    // Function to check if sidebar is open
+    function isSidebarOpen() {
+      const sidebar = document.querySelector('.sidebar, #sidebar, .side-menu');
+      if (!sidebar) return false;
+      
+      // Check common sidebar open indicators
+      const hasOpenClass = sidebar.classList.contains('active') || 
+                          sidebar.classList.contains('open') || 
+                          sidebar.classList.contains('show') ||
+                          sidebar.classList.contains('sidebar-open');
+      
+      // Check if sidebar is visible (not hidden)
+      const isVisible = window.getComputedStyle(sidebar).display !== 'none' &&
+                       window.getComputedStyle(sidebar).visibility !== 'hidden' &&
+                       window.getComputedStyle(sidebar).width !== '0px';
+      
+      // Check if sidebar has width (not collapsed)
+      const sidebarWidth = sidebar.offsetWidth || parseInt(window.getComputedStyle(sidebar).width);
+      const isWide = sidebarWidth > 50; // More than 50px means it's open
+      
+      return hasOpenClass || (isVisible && isWide);
+    }
+    
+    // Function to update chart1 legend based on sidebar state
+    function updateChart1Legend() {
+      const sidebarOpen = isSidebarOpen();
+      const chartWidth = chart1Dom.offsetWidth || chart1Dom.clientWidth;
+      const isNarrow = chartWidth < 600; // Consider narrow if chart width is less than 600px
+      
+      // If sidebar is open or chart is narrow, use smaller spacing and font to keep legend in one line
+      const useCompactLegend = sidebarOpen || isNarrow;
+      
+      chart1.setOption({
+        legend: {
+          data: ['Jumlah Penduduk Miskin (Ribu)', 'Persentase Penduduk Miskin'],
+          top: isMobile ? 5 : 10,
+          left: 'center',
+          orient: 'horizontal',
+          itemGap: useCompactLegend ? 8 : (isMobile ? 15 : 20),
+          itemWidth: isMobile ? 10 : 12,
+          itemHeight: isMobile ? 10 : 12,
+          textStyle: {
+            fontSize: useCompactLegend ? 9 : (isMobile ? 10 : 12)
+          }
+        }
+      }, false); // notMerge: false to only update legend
+    }
+
+    // Chart 1: Jumlah dan Persentase Penduduk Miskin (Bar + Line) - 5 tahun terakhir
+    const chart1Dom = document.getElementById('chart1');
+    const chart1 = echarts.init(chart1Dom);
+    
+    const chart1Years = surabayaDataLast5.map(d => d.year.toString());
+    const chart1Jumlah = surabayaDataLast5.map(d => d.jumlah_penduduk_miskin !== null ? d.jumlah_penduduk_miskin : null);
+    const chart1Persentase = surabayaDataLast5.map(d => d.persentase_penduduk_miskin !== null ? d.persentase_penduduk_miskin : null);
+
+    chart1.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross' },
+        formatter: function(params) {
+          let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+          params.forEach(function(item) {
+            if (item.seriesName === 'Jumlah Penduduk Miskin (Ribu)') {
+              result += item.marker + item.seriesName + ': ' + (item.value !== null ? item.value.toFixed(2) + ' ribu' : 'Data tidak tersedia') + '<br/>';
+            } else {
+              result += item.marker + item.seriesName + ': ' + (item.value !== null ? item.value.toFixed(2) + '%' : 'Data tidak tersedia') + '<br/>';
+            }
+          });
+          return result;
+        }
+      },
+      legend: {
+        data: ['Jumlah Penduduk Miskin (Ribu)', 'Persentase Penduduk Miskin'],
+        top: isMobile ? 5 : 10,
+        left: 'center',
+        orient: 'horizontal',
+        itemGap: isMobile ? 15 : 20,
+        itemWidth: isMobile ? 10 : 12,
+        itemHeight: isMobile ? 10 : 12,
+        textStyle: {
+          fontSize: isMobile ? 10 : 12
+        }
+      },
+      grid: {
+        left: isMobile ? '15%' : '12%',
+        right: isMobile ? '15%' : '12%',
+        bottom: '10%',
+        top: isMobile ? '18%' : '20%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: chart1Years,
+        axisLabel: {
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      yAxis: [
+        {
+          type: 'value',
+          name: 'Jumlah (Ribu)',
+          position: 'left',
+          nameLocation: 'end',
+          nameGap: 10,
+          nameTextStyle: {
+            padding: [0, 0, 0, 0],
+            fontSize: isMobile ? 10 : 12
+          },
+          axisLabel: { 
+            formatter: '{value} ribu',
+            fontSize: isMobile ? 9 : 11
+          }
+        },
+        {
+          type: 'value',
+          name: 'Persentase (%)',
+          position: 'right',
+          nameLocation: 'end',
+          nameGap: isMobile ? 8 : 10,
+          nameTextStyle: {
+            padding: [0, 0, 0, 0],
+            fontSize: isMobile ? 10 : 12
+          },
+          axisLabel: { 
+            formatter: '{value}%',
+            fontSize: isMobile ? 9 : 11
+          }
+        }
+      ],
+      series: [
+        {
+          name: 'Jumlah Penduduk Miskin (Ribu)',
+          type: 'bar',
+          data: chart1Jumlah,
+          itemStyle: { color: '#3b82f6' },
+          yAxisIndex: 0
+        },
+        {
+          name: 'Persentase Penduduk Miskin',
+          type: 'line',
+          data: chart1Persentase,
+          itemStyle: { color: '#f59e0b' },
+          lineStyle: { width: 3 },
+          symbol: 'circle',
+          symbolSize: 8,
+          yAxisIndex: 1
+        }
+      ]
+    });
+
+    // Chart 2: Garis Kemiskinan (Area Chart)
+    const chart2Dom = document.getElementById('chart2');
+    const chart2 = echarts.init(chart2Dom);
+    
+    const chart2Years = surabayaDataLast10.map(d => d.year.toString());
+    const chart2Garis = surabayaDataLast10.map(d => d.garis_kemiskinan !== null ? d.garis_kemiskinan : null);
+
+    chart2.setOption({
+      tooltip: {
+        trigger: 'axis',
+        formatter: function(params) {
+          return 'Tahun: ' + params[0].axisValue + '<br/>' +
+                 params[0].marker + 'Garis Kemiskinan: ' + 
+                 (params[0].value !== null ? 'Rp ' + params[0].value.toLocaleString('id-ID') : 'Data tidak tersedia');
+        }
+      },
+      legend: {
+        data: ['Garis Kemiskinan'],
+        top: isMobile ? 5 : 10,
+        left: 'center',
+        orient: 'horizontal',
+        itemGap: isMobile ? 15 : 20,
+        itemWidth: isMobile ? 10 : 12,
+        itemHeight: isMobile ? 10 : 12,
+        textStyle: {
+          fontSize: isMobile ? 10 : 12
+        }
+      },
+      grid: {
+        left: isMobile ? '15%' : '12%',
+        right: '4%',
+        bottom: '10%',
+        top: isMobile ? '18%' : '20%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: chart2Years,
+        axisLabel: {
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Rupiah',
+        position: 'left',
+        nameLocation: 'end',
+        nameGap: isMobile ? 8 : 10,
+        nameTextStyle: {
+          padding: [0, 0, 0, 0],
+          fontSize: isMobile ? 10 : 12
+        },
+        axisLabel: {
+          formatter: function(value) {
+            return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+          },
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      series: [{
+        name: 'Garis Kemiskinan',
+        type: 'line',
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(139, 92, 246, 0.6)' },
+              { offset: 1, color: 'rgba(139, 92, 246, 0.1)' }
+            ]
+          }
+        },
+        data: chart2Garis,
+        itemStyle: { color: '#8b5cf6' },
+        lineStyle: { width: 3 },
+        symbol: 'circle',
+        symbolSize: 8
+      }]
+    });
+
+    // Chart 3: Indeks Kedalaman (P1) - Line Chart
+    const chart3Dom = document.getElementById('chart3');
+    const chart3 = echarts.init(chart3Dom);
+    
+    const chart3Years = surabayaDataLast10.map(d => d.year.toString());
+    const chart3P1 = surabayaDataLast10.map(d => d.indeks_kedalaman_kemiskinan_p1 !== null ? d.indeks_kedalaman_kemiskinan_p1 : null);
+
+    chart3.setOption({
+      tooltip: {
+        trigger: 'axis',
+        formatter: function(params) {
+          return 'Tahun: ' + params[0].axisValue + '<br/>' +
+                 params[0].marker + 'Indeks Kedalaman (P1): ' + 
+                 (params[0].value !== null ? params[0].value.toFixed(2) : 'Data tidak tersedia');
+        }
+      },
+      legend: {
+        data: ['Indeks Kedalaman (P1)'],
+        top: isMobile ? 5 : 10,
+        left: 'center',
+        orient: 'horizontal',
+        itemGap: isMobile ? 15 : 20,
+        itemWidth: isMobile ? 10 : 12,
+        itemHeight: isMobile ? 10 : 12,
+        textStyle: {
+          fontSize: isMobile ? 10 : 12
+        }
+      },
+      grid: {
+        left: isMobile ? '15%' : '12%',
+        right: '4%',
+        bottom: '10%',
+        top: isMobile ? '18%' : '20%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: chart3Years,
+        axisLabel: {
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Indeks Kedalaman (P1)',
+        position: 'left',
+        nameLocation: 'end',
+        nameGap: isMobile ? 8 : 10,
+        nameTextStyle: {
+          padding: [0, 0, 0, 0],
+          fontSize: isMobile ? 10 : 12
+        },
+        axisLabel: {
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      series: [{
+        name: 'Indeks Kedalaman (P1)',
+        type: 'line',
+        data: chart3P1,
+        itemStyle: { color: '#f59e0b' },
+        lineStyle: { width: 3 },
+        symbol: 'circle',
+        symbolSize: 8,
+        smooth: true
+      }]
+    });
+
+    // Chart 4: Indeks Keparahan (P2) - Line Chart
+    const chart4Dom = document.getElementById('chart4');
+    const chart4 = echarts.init(chart4Dom);
+    
+    const chart4Years = surabayaDataLast10.map(d => d.year.toString());
+    const chart4P2 = surabayaDataLast10.map(d => d.indeks_keparahan_kemiskinan_p2 !== null ? d.indeks_keparahan_kemiskinan_p2 : null);
+
+    chart4.setOption({
+      tooltip: {
+        trigger: 'axis',
+        formatter: function(params) {
+          return 'Tahun: ' + params[0].axisValue + '<br/>' +
+                 params[0].marker + 'Indeks Keparahan (P2): ' + 
+                 (params[0].value !== null ? params[0].value.toFixed(2) : 'Data tidak tersedia');
+        }
+      },
+      legend: {
+        data: ['Indeks Keparahan (P2)'],
+        top: isMobile ? 5 : 10,
+        left: 'center',
+        orient: 'horizontal',
+        itemGap: isMobile ? 15 : 20,
+        itemWidth: isMobile ? 10 : 12,
+        itemHeight: isMobile ? 10 : 12,
+        textStyle: {
+          fontSize: isMobile ? 10 : 12
+        }
+      },
+      grid: {
+        left: isMobile ? '15%' : '12%',
+        right: '4%',
+        bottom: '10%',
+        top: isMobile ? '18%' : '20%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: chart4Years,
+        axisLabel: {
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Indeks Keparahan (P2)',
+        position: 'left',
+        nameLocation: 'end',
+        nameGap: isMobile ? 8 : 10,
+        nameTextStyle: {
+          padding: [0, 0, 0, 0],
+          fontSize: isMobile ? 10 : 12
+        },
+        axisLabel: {
+          fontSize: isMobile ? 9 : 11
+        }
+      },
+      series: [{
+        name: 'Indeks Keparahan (P2)',
+        type: 'line',
+        data: chart4P2,
+        itemStyle: { color: '#ef4444' },
+        lineStyle: { width: 3 },
+        symbol: 'circle',
+        symbolSize: 8,
+        smooth: true
+      }]
+    });
+
+    // Comparison Chart: Surabaya vs Jawa Timur (Dual-axis Line Chart like image 1)
+    const comparisonChartDom = document.getElementById('comparisonChart');
+    const comparisonChart = echarts.init(comparisonChartDom);
+
+    function updateComparisonChart(indicator) {
+      const fieldMap = {
+        'jumlah_penduduk_miskin': { 
+          name: 'Jumlah Penduduk Miskin', 
+          unit: 'ribu', 
+          surabayaColor: '#ff69b4', 
+          jatimColor: '#3b82f6',
+          surabayaLabel: 'Surabaya (Ribu)',
+          jatimLabel: 'Jawa Timur (Juta)',
+          surabayaDivisor: 1,
+          jatimDivisor: 1000
+        },
+        'persentase_penduduk_miskin': { 
+          name: 'Persentase Penduduk Miskin', 
+          unit: '%', 
+          surabayaColor: '#ff69b4', 
+          jatimColor: '#3b82f6',
+          surabayaLabel: 'Surabaya (%)',
+          jatimLabel: 'Jawa Timur (%)',
+          surabayaDivisor: 1,
+          jatimDivisor: 1
+        },
+        'indeks_kedalaman_kemiskinan_p1': { 
+          name: 'Indeks Kedalaman (P1)', 
+          unit: '', 
+          surabayaColor: '#ff69b4', 
+          jatimColor: '#3b82f6',
+          surabayaLabel: 'Surabaya',
+          jatimLabel: 'Jawa Timur',
+          surabayaDivisor: 1,
+          jatimDivisor: 1
+        },
+        'indeks_keparahan_kemiskinan_p2': { 
+          name: 'Indeks Keparahan (P2)', 
+          unit: '', 
+          surabayaColor: '#ff69b4', 
+          jatimColor: '#3b82f6',
+          surabayaLabel: 'Surabaya',
+          jatimLabel: 'Jawa Timur',
+          surabayaDivisor: 1,
+          jatimDivisor: 1
+        },
+        'garis_kemiskinan': { 
+          name: 'Garis Kemiskinan', 
+          unit: 'Rp', 
+          surabayaColor: '#ff69b4', 
+          jatimColor: '#3b82f6',
+          surabayaLabel: 'Surabaya (Rp)',
+          jatimLabel: 'Jawa Timur (Rp)',
+          surabayaDivisor: 1,
+          jatimDivisor: 1
+        }
+      };
+
+      const config = fieldMap[indicator];
+      const years = last10Years.map(y => y.toString());
+      
+      const surabayaValues = last10Years.map(year => {
+        const data = surabayaDataLast10.find(d => d.year === year);
+        if (data && data[indicator] !== null) {
+          // For jumlah_penduduk_miskin, keep in ribu (no conversion)
+          // For others, use value as is
+          return data[indicator];
+        }
+        return null;
+      });
+
+      const jatimValues = last10Years.map(year => {
+        const data = jatimDataLast10.find(d => d.year === year);
+        if (data && data[indicator] !== null) {
+          // For jumlah_penduduk_miskin, convert to juta (divide by 1000)
+          // For others, use value as is
+          return indicator === 'jumlah_penduduk_miskin' ? data[indicator] / 1000 : data[indicator];
+        }
+        return null;
+      });
+
+      const formatter = (value, unit, divisor) => {
+        if (value === null) return 'Data tidak tersedia';
+        if (unit === 'Rp') {
+          return 'Rp ' + (value * divisor).toLocaleString('id-ID');
+        } else if (unit === 'ribu') {
+          return (value * divisor).toFixed(2) + ' ribu';
+        } else if (unit === '%') {
+          return (value * divisor).toFixed(2) + '%';
+        } else {
+          return (value * divisor).toFixed(2);
+        }
+      };
+
+      // Hanya indikator "Jumlah Penduduk Miskin" yang menggunakan 2 y-axis (dual-axis)
+      // Indikator lain (Persentase, P1, P2, Garis Kemiskinan) menggunakan 1 y-axis saja
+      if (indicator === 'jumlah_penduduk_miskin') {
+        comparisonChart.setOption({
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' },
+            formatter: function(params) {
+              let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+              params.forEach(function(item) {
+                if (item.seriesName === 'Jawa Timur') {
+                  result += item.marker + item.seriesName + ': ' + 
+                    (item.value !== null ? item.value.toFixed(2) + ' Juta' : 'Data tidak tersedia') + '<br/>';
+                } else {
+                  result += item.marker + item.seriesName + ': ' + 
+                    (item.value !== null ? item.value.toFixed(2) + ' ribu' : 'Data tidak tersedia') + '<br/>';
+                }
+              });
+              return result;
+            }
+          },
+          legend: {
+            data: ['Jawa Timur', 'Surabaya'],
+            top: isMobile ? 5 : 10,
+            left: 'center',
+            orient: 'horizontal',
+            itemGap: isMobile ? 15 : 20,
+            itemWidth: isMobile ? 10 : 12,
+            itemHeight: isMobile ? 10 : 12,
+            textStyle: {
+              fontSize: isMobile ? 10 : 12
+            }
+          },
+          grid: {
+            left: isMobile ? '15%' : '12%',
+            right: isMobile ? '15%' : '12%',
+            bottom: '10%',
+            top: isMobile ? '18%' : '15%',
+            containLabel: false
+          },
+          xAxis: {
+            type: 'category',
+            data: years,
+            axisLabel: {
+              fontSize: isMobile ? 9 : 11
+            }
+          },
+          yAxis: [
+            {
+              type: 'value',
+              name: 'Jawa Timur (Juta)',
+              position: 'left',
+              nameLocation: 'start',
+              nameGap: isMobile ? 35 : 40,
+              nameTextStyle: {
+                padding: [0, 0, 0, 0],
+                fontSize: isMobile ? 10 : 12
+              },
+              axisLabel: {
+                formatter: '{value}',
+                fontSize: isMobile ? 9 : 11
+              }
+            },
+            {
+              type: 'value',
+              name: 'Surabaya (Ribu)',
+              position: 'right',
+              nameLocation: 'start',
+              nameGap: isMobile ? 35 : 40,
+              nameTextStyle: {
+                padding: [0, 0, 0, 0],
+                fontSize: isMobile ? 10 : 12
+              },
+              axisLabel: {
+                formatter: '{value}',
+                fontSize: isMobile ? 9 : 11
+              }
+            }
+          ],
+          series: [
+            {
+              name: 'Jawa Timur',
+              type: 'line',
+              data: jatimValues,
+              itemStyle: { color: config.jatimColor },
+              lineStyle: { width: 3 },
+              symbol: 'circle',
+              symbolSize: 8,
+              yAxisIndex: 0
+            },
+            {
+              name: 'Surabaya',
+              type: 'line',
+              data: surabayaValues,
+              itemStyle: { color: config.surabayaColor },
+              lineStyle: { width: 3 },
+              symbol: 'circle',
+              symbolSize: 8,
+              yAxisIndex: 1
+            }
+          ]
+        }, true); // notMerge: true untuk menggantikan semua option sebelumnya
+      } else {
+        // Untuk indikator selain "Jumlah Penduduk Miskin", gunakan 1 y-axis saja (single axis)
+        // Clear chart dulu untuk memastikan tidak ada y-axis kedua yang tersisa
+        comparisonChart.clear();
+        comparisonChart.setOption({
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' },
+            formatter: function(params) {
+              let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+              params.forEach(function(item) {
+                if (item.value === null) {
+                  result += item.marker + item.seriesName + ': Data tidak tersedia<br/>';
+                } else {
+                  if (config.unit === 'Rp') {
+                    result += item.marker + item.seriesName + ': Rp ' + item.value.toLocaleString('id-ID') + '<br/>';
+                  } else if (config.unit === '%') {
+                    result += item.marker + item.seriesName + ': ' + item.value.toFixed(2) + '%<br/>';
+                  } else if (config.unit === 'ribu') {
+                    result += item.marker + item.seriesName + ': ' + item.value.toFixed(2) + ' ribu<br/>';
+                  } else {
+                    result += item.marker + item.seriesName + ': ' + item.value.toFixed(2) + '<br/>';
+                  }
+                }
+              });
+              return result;
+            }
+          },
+          legend: {
+            data: ['Jawa Timur', 'Surabaya'],
+            top: isMobile ? 5 : 10,
+            left: 'center',
+            orient: 'horizontal',
+            itemGap: isMobile ? 15 : 20,
+            itemWidth: isMobile ? 10 : 12,
+            itemHeight: isMobile ? 10 : 12,
+            textStyle: {
+              fontSize: isMobile ? 10 : 12
+            }
+          },
+          grid: {
+            left: isMobile ? '15%' : '12%',
+            right: '4%',
+            bottom: '10%',
+            top: isMobile ? '18%' : '15%',
+            containLabel: false
+          },
+          xAxis: {
+            type: 'category',
+            data: years,
+            axisLabel: {
+              fontSize: isMobile ? 9 : 11
+            }
+          },
+          // Hanya 1 y-axis (object, bukan array) - hanya y-axis kiri
+          yAxis: {
+            type: 'value',
+            name: config.name + (config.unit ? ' (' + config.unit + ')' : ''),
+            position: 'left',
+            nameLocation: 'start',
+            nameGap: isMobile ? 35 : 40,
+            nameTextStyle: {
+              padding: [0, 0, 0, 0],
+              fontSize: isMobile ? 10 : 12
+            },
+            axisLabel: {
+              formatter: function(value) {
+                if (config.unit === 'Rp') {
+                  return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+                } else if (config.unit === 'ribu') {
+                  return value.toFixed(0) + ' ribu';
+                } else if (config.unit === '%') {
+                  return value.toFixed(1) + '%';
+                } else {
+                  return value.toFixed(2);
+                }
+              },
+              fontSize: isMobile ? 9 : 11
+            }
+          },
+          series: [
+            {
+              name: 'Jawa Timur',
+              type: 'line',
+              data: jatimValues,
+              itemStyle: { color: config.jatimColor },
+              lineStyle: { width: 3 },
+              symbol: 'circle',
+              symbolSize: 8
+              // Tidak menggunakan yAxisIndex - menggunakan y-axis default (kiri)
+            },
+            {
+              name: 'Surabaya',
+              type: 'line',
+              data: surabayaValues,
+              itemStyle: { color: config.surabayaColor },
+              lineStyle: { width: 3 },
+              symbol: 'circle',
+              symbolSize: 8
+              // Tidak menggunakan yAxisIndex - menggunakan y-axis default (kiri)
+            }
+          ]
+        }, true); // notMerge: true untuk menggantikan semua option sebelumnya dan memastikan hanya 1 y-axis
+      }
+    }
+
+    // Initialize comparison chart
+    updateComparisonChart('jumlah_penduduk_miskin');
+
+    // Handle indicator selector change
+    document.getElementById('indicatorSelector').addEventListener('change', function() {
+      updateComparisonChart(this.value);
+    });
+
+    // Function to resize all charts
+    function resizeAllCharts() {
+      const charts = [chart1, chart2, chart3, chart4, comparisonChart];
+      charts.forEach(chart => {
+        if (chart) {
+          setTimeout(() => {
+            chart.resize();
+          }, 100);
+        }
+      });
+    }
+
+
+    // Function to handle sidebar changes and update chart1 legend
+    function handleSidebarChange() {
+      setTimeout(() => {
+        resizeAllCharts();
+        updateChart1Legend();
+      }, 300);
+    }
+
+    // Handle sidebar toggle (common sidebar toggle patterns)
+    const sidebarToggle = document.querySelector('#sidebarToggle, #check, [data-toggle="sidebar"], .sidebar-toggle');
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('change', handleSidebarChange);
+      sidebarToggle.addEventListener('click', handleSidebarChange);
+    }
+
+    // Observe sidebar changes using MutationObserver
+    const sidebar = document.querySelector('.sidebar, #sidebar, .side-menu');
+    if (sidebar) {
+      const observer = new MutationObserver(function(mutations) {
+        handleSidebarChange();
+      });
+      observer.observe(sidebar, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+    }
+
+    // Also listen for transitionend events on main content area
+    const mainContent = document.querySelector('.main-panel, .content-wrapper, .page-body-wrapper');
+    if (mainContent) {
+      mainContent.addEventListener('transitionend', handleSidebarChange);
+    }
+
+    // Handle window resize to update legend
+    window.addEventListener('resize', function() {
+      resizeAllCharts();
+      updateChart1Legend();
+    });
+
+    // Initial update of chart1 legend
+    setTimeout(() => {
+      updateChart1Legend();
+      resizeAllCharts();
+    }, 500);
+
+    // Export functions for Chart 1
+    function exportChart1ToExcel() {
+      const exportData = [];
+      exportData.push(['Tahun', 'Jumlah Penduduk Miskin (Ribu)', 'Persentase Penduduk Miskin (%)']);
+      chart1Years.forEach((year, index) => {
+        const jumlah = chart1Jumlah[index] !== null ? chart1Jumlah[index].toFixed(2) : 'Data tidak tersedia';
+        const persentase = chart1Persentase[index] !== null ? chart1Persentase[index].toFixed(2) : 'Data tidak tersedia';
+        exportData.push([year, jumlah, persentase]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 30 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Chart 1');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Kemiskinan_Chart1_${today}.xlsx`);
+    }
+
+    function exportChart1ToPNG() {
+      const url = chart1.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Kemiskinan_Chart1_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    // Helper function to check authentication before download
+    function checkAuthBeforeDownload(callback, itemName = 'data') {
+      {% if not user.is_authenticated %}
+      // User not authenticated, show login modal
+      if (typeof showLoginRequiredModal === 'function') {
+        showLoginRequiredModal(itemName);
+      } else {
+        alert('Ingin mengunduh ' + itemName + ' ini? Silakan login terlebih dahulu.');
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+          const modal = new bootstrap.Modal(loginModal);
+          modal.show();
+        } else {
+          window.location.href = '{% url "login" %}';
+        }
+      }
+      return false;
+      {% else %}
+      // User authenticated, proceed with download
+      callback();
+      return true;
+      {% endif %}
+    }
+
+    document.getElementById('downloadChart1Excel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart1ToExcel, 'data chart kemiskinan 1');
+    });
+    document.getElementById('downloadChart1PNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart1ToPNG, 'grafik chart kemiskinan 1');
+    });
+
+    // Export functions for Chart 2
+    function exportChart2ToExcel() {
+      const chart2Years = surabayaDataLast5.map(d => d.year.toString());
+      const chart2Garis = surabayaDataLast5.map(d => d.garis_kemiskinan !== null ? d.garis_kemiskinan : null);
+      const exportData = [];
+      exportData.push(['Tahun', 'Garis Kemiskinan (Rp)']);
+      chart2Years.forEach((year, index) => {
+        const garis = chart2Garis[index] !== null ? chart2Garis[index].toFixed(0) : 'Data tidak tersedia';
+        exportData.push([year, garis]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 25 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Chart 2');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Kemiskinan_Chart2_${today}.xlsx`);
+    }
+
+    function exportChart2ToPNG() {
+      const url = chart2.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Kemiskinan_Chart2_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    document.getElementById('downloadChart2Excel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart2ToExcel, 'data chart kemiskinan 2');
+    });
+    document.getElementById('downloadChart2PNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart2ToPNG, 'grafik chart kemiskinan 2');
+    });
+
+    // Export functions for Chart 3
+    function exportChart3ToExcel() {
+      const chart3Years = surabayaDataLast5.map(d => d.year.toString());
+      const chart3P1 = surabayaDataLast5.map(d => d.indeks_kedalaman_kemiskinan_p1 !== null ? d.indeks_kedalaman_kemiskinan_p1 : null);
+      const exportData = [];
+      exportData.push(['Tahun', 'Indeks Kedalaman (P1)']);
+      chart3Years.forEach((year, index) => {
+        const p1 = chart3P1[index] !== null ? chart3P1[index].toFixed(2) : 'Data tidak tersedia';
+        exportData.push([year, p1]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 25 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Chart 3');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Kemiskinan_Chart3_${today}.xlsx`);
+    }
+
+    function exportChart3ToPNG() {
+      const url = chart3.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Kemiskinan_Chart3_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    document.getElementById('downloadChart3Excel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart3ToExcel, 'data chart kemiskinan 3');
+    });
+    document.getElementById('downloadChart3PNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart3ToPNG, 'grafik chart kemiskinan 3');
+    });
+
+    // Export functions for Chart 4
+    function exportChart4ToExcel() {
+      const chart4Years = surabayaDataLast5.map(d => d.year.toString());
+      const chart4P2 = surabayaDataLast5.map(d => d.indeks_keparahan_kemiskinan_p2 !== null ? d.indeks_keparahan_kemiskinan_p2 : null);
+      const exportData = [];
+      exportData.push(['Tahun', 'Indeks Keparahan (P2)']);
+      chart4Years.forEach((year, index) => {
+        const p2 = chart4P2[index] !== null ? chart4P2[index].toFixed(2) : 'Data tidak tersedia';
+        exportData.push([year, p2]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 25 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Chart 4');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Kemiskinan_Chart4_${today}.xlsx`);
+    }
+
+    function exportChart4ToPNG() {
+      const url = chart4.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Kemiskinan_Chart4_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    document.getElementById('downloadChart4Excel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart4ToExcel, 'data chart kemiskinan 4');
+    });
+    document.getElementById('downloadChart4PNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportChart4ToPNG, 'grafik chart kemiskinan 4');
+    });
+
+    // Export functions for Comparison Chart
+    function exportComparisonToExcel() {
+      const selectedIndicator = document.getElementById('indicatorSelector').value;
+      const indicatorConfigs = {
+        'jumlah_penduduk_miskin': { name: 'Jumlah Penduduk Miskin', unit: 'ribu' },
+        'persentase_penduduk_miskin': { name: 'Persentase Penduduk Miskin', unit: '%' },
+        'indeks_kedalaman_kemiskinan_p1': { name: 'Indeks Kedalaman (P1)', unit: '' },
+        'indeks_keparahan_kemiskinan_p2': { name: 'Indeks Keparahan (P2)', unit: '' },
+        'garis_kemiskinan': { name: 'Garis Kemiskinan', unit: 'Rp' }
+      };
+      const config = indicatorConfigs[selectedIndicator];
+      const years = last10Years.map(y => y.toString());
+      const surabayaValues = years.map(year => {
+        const data = surabayaDataLast10.find(d => d.year.toString() === year);
+        return data ? data[selectedIndicator] : null;
+      });
+      const jatimValues = years.map(year => {
+        const data = jatimDataLast10.find(d => d.year.toString() === year);
+        return data ? data[selectedIndicator] : null;
+      });
+      const exportData = [];
+      exportData.push(['Tahun', `Surabaya (${config.unit ? config.unit : ''})`, `Jawa Timur (${config.unit ? config.unit : ''})`]);
+      years.forEach((year, index) => {
+        const surabayaVal = surabayaValues[index] !== null ? (config.unit === 'Rp' ? surabayaValues[index].toFixed(0) : surabayaValues[index].toFixed(2)) : 'Data tidak tersedia';
+        const jatimVal = jatimValues[index] !== null ? (config.unit === 'Rp' ? jatimValues[index].toFixed(0) : jatimValues[index].toFixed(2)) : 'Data tidak tersedia';
+        exportData.push([year, surabayaVal, jatimVal]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(exportData);
+      ws['!cols'] = [{ wch: 10 }, { wch: 25 }, { wch: 25 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Perbandingan');
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Kemiskinan_Perbandingan_${today}.xlsx`);
+    }
+
+    function exportComparisonToPNG() {
+      const url = comparisonChart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const link = document.createElement('a');
+      link.download = `Kemiskinan_Perbandingan_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = url;
+      link.click();
+    }
+
+    document.getElementById('downloadComparisonExcel').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportComparisonToExcel, 'data perbandingan kemiskinan');
+    });
+    document.getElementById('downloadComparisonPNG').addEventListener('click', function() {
+      checkAuthBeforeDownload(exportComparisonToPNG, 'grafik perbandingan kemiskinan');
+    });
+  });
+</script>
+
+{% endblock %}

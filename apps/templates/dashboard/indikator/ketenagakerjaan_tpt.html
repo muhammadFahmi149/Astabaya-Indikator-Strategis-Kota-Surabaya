@@ -1,0 +1,343 @@
+{% extends 'dashboard/dashboard.html' %} 
+{% load static %}
+{% block dashboard_content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+<div class="container py-4">
+  <h3 class="font-weight-bold mb-4">Tingkat Pengangguran Terbuka (TPT)</h3>
+  
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <!-- Total TPT -->
+    <div class="col-md-4 mb-3">
+      <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+        <div style="position: relative; z-index: 2;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Total TPT</h6>
+          <h3 style="font-size: 32px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_data and latest_data.total %}
+              {{ latest_data.total|floatformat:2 }}%
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if total_change is not None %}
+              {% if total_change > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ total_change|floatformat:2 }}%</span>
+              {% elif total_change < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ total_change|floatformat:2 }}%</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_data.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: 8px; display: block;">
+            {% if latest_data %}
+              Tahun {{ latest_data.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+        <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+          <i class="fas fa-chart-line" style="font-size: 60px;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laki-Laki -->
+    <div class="col-md-4 mb-3">
+      <div class="summary-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+        <div style="position: relative; z-index: 2;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Laki-Laki</h6>
+          <h3 style="font-size: 32px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_data and latest_data.laki_laki %}
+              {{ latest_data.laki_laki|floatformat:2 }}%
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if laki_laki_change is not None %}
+              {% if laki_laki_change > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ laki_laki_change|floatformat:2 }}%</span>
+              {% elif laki_laki_change < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ laki_laki_change|floatformat:2 }}%</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_data.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: 8px; display: block;">
+            {% if latest_data %}
+              Tahun {{ latest_data.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+        <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+          <i class="fas fa-male" style="font-size: 60px;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perempuan -->
+    <div class="col-md-4 mb-3">
+      <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; padding: 20px; min-height: 160px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+        <div style="position: relative; z-index: 2;">
+          <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">Perempuan</h6>
+          <h3 style="font-size: 32px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+            {% if latest_data and latest_data.perempuan %}
+              {{ latest_data.perempuan|floatformat:2 }}%
+            {% else %}
+              -
+            {% endif %}
+          </h3>
+          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
+            {% if perempuan_change is not None %}
+              {% if perempuan_change > 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ perempuan_change|floatformat:2 }}%</span>
+              {% elif perempuan_change < 0 %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ perempuan_change|floatformat:2 }}%</span>
+              {% else %}
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
+              {% endif %}
+              {% if previous_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari {{ previous_data.year }}</span>{% endif %}
+            {% endif %}
+          </div>
+          <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: 8px; display: block;">
+            {% if latest_data %}
+              Tahun {{ latest_data.year }}
+            {% else %}
+              Data tidak tersedia
+            {% endif %}
+          </small>
+        </div>
+        <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+          <i class="fas fa-female" style="font-size: 60px;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row mb-4">
+    <!-- Pie Chart for Demographics -->
+    <div class="col-md-6 mb-3">
+      <div class="dashboard-card">
+        <h5 class="mb-3">Distribusi TPT Berdasarkan Gender ({{ latest_data.year|default:"-" }})</h5>
+        <div id="pieChart" style="width: 100%; height: 400px;"></div>
+      </div>
+    </div>
+
+    <!-- Line Chart -->
+    <div class="col-md-6 mb-3">
+      <div class="dashboard-card">
+        <h5 class="mb-3">Tren TPT dari Tahun ke Tahun</h5>
+        <div id="lineChart" style="width: 100%; height: 400px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dashboard-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Prepare data from Django template
+    const tptData = [
+      {% for data in tpt_data %}
+      {
+        year: {{ data.year }},
+        total: {{ data.total|default:"null" }},
+        laki_laki: {{ data.laki_laki|default:"null" }},
+        perempuan: {{ data.perempuan|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // Sort data by year
+    tptData.sort((a, b) => a.year - b.year);
+
+    // Pie Chart for Demographics (Latest Year)
+    const pieChartDom = document.getElementById('pieChart');
+    const pieChart = echarts.init(pieChartDom);
+    
+    const latestData = tptData[tptData.length - 1];
+    const pieData = [];
+    
+    if (latestData && latestData.laki_laki !== null) {
+      pieData.push({
+        name: 'Laki-Laki',
+        value: latestData.laki_laki
+      });
+    }
+    
+    if (latestData && latestData.perempuan !== null) {
+      pieData.push({
+        name: 'Perempuan',
+        value: latestData.perempuan
+      });
+    }
+
+    pieChart.setOption({
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: {c}% ({d}%)'
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: pieData.map(item => item.name)
+      },
+      series: [
+        {
+          name: 'TPT',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: '#fff',
+            borderWidth: 2
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {c}%'
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: 16,
+              fontWeight: 'bold'
+            }
+          },
+          data: pieData,
+          color: ['#3b82f6', '#f093fb']
+        }
+      ]
+    });
+
+    // Line Chart - Trend over years
+    const lineChartDom = document.getElementById('lineChart');
+    const lineChart = echarts.init(lineChartDom);
+    
+    const years = tptData.map(d => d.year.toString());
+    const totalValues = tptData.map(d => d.total !== null ? d.total : null);
+    const lakiLakiValues = tptData.map(d => d.laki_laki !== null ? d.laki_laki : null);
+    const perempuanValues = tptData.map(d => d.perempuan !== null ? d.perempuan : null);
+
+    lineChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross' },
+        formatter: function(params) {
+          let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+          params.forEach(function(item) {
+            result += item.marker + item.seriesName + ': ' + 
+              (item.value !== null ? item.value.toFixed(2) + '%' : 'Data tidak tersedia') + '<br/>';
+          });
+          return result;
+        }
+      },
+      legend: {
+        data: ['Total', 'Laki-Laki', 'Perempuan']
+      },
+      grid: {
+        left: '12%',
+        right: '4%',
+        bottom: '10%',
+        top: '20%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'category',
+        data: years,
+        boundaryGap: false
+      },
+      yAxis: {
+        type: 'value',
+        name: 'TPT (%)',
+        position: 'left',
+        nameLocation: 'end',
+        nameGap: 10,
+        nameTextStyle: {
+          padding: [0, 0, 0, 0]
+        },
+        axisLabel: {
+          formatter: '{value}%'
+        }
+      },
+      series: [
+        {
+          name: 'Total',
+          type: 'line',
+          data: totalValues,
+          itemStyle: { color: '#667eea' },
+          lineStyle: { width: 3 },
+          symbol: 'circle',
+          symbolSize: 8,
+          smooth: true
+        },
+        {
+          name: 'Laki-Laki',
+          type: 'line',
+          data: lakiLakiValues,
+          itemStyle: { color: '#3b82f6' },
+          lineStyle: { width: 2 },
+          symbol: 'circle',
+          symbolSize: 6,
+          smooth: true
+        },
+        {
+          name: 'Perempuan',
+          type: 'line',
+          data: perempuanValues,
+          itemStyle: { color: '#f093fb' },
+          lineStyle: { width: 2 },
+          symbol: 'circle',
+          symbolSize: 6,
+          smooth: true
+        }
+      ]
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      pieChart.resize();
+      lineChart.resize();
+    });
+  });
+</script>
+
+{% endblock %}
+
+
+

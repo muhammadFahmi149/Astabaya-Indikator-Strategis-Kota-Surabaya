@@ -1,0 +1,27 @@
+# Environment
+env/
+venv/
+.env
+
+# Database
+db.sqlite3
+
+# Credentials
+credentials.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Static build files
+staticfiles/
+
+# Django media (optional)
+media/
+
+credentials.json
+.env
+
+credential_oauth2.json

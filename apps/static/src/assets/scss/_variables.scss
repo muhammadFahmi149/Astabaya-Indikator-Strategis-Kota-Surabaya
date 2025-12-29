@@ -1,0 +1,116 @@
+////////// SIDEBAR ////////
+$sidebar-width-lg: 235px;
+$sidebar-width-mini: 185px;
+$sidebar-width-icon: 70px;
+
+$sidebar-light-bg: #fff;
+$sidebar-light-menu-color: #a0c3cf;
+$sidebar-light-submenu-color: #fff;
+$sidebar-light-menu-active-bg: #03a4ed;
+$sidebar-light-menu-active-color: #fff;
+$sidebar-light-menu-hover-bg: #03a4ed;
+$sidebar-light-menu-hover-color: #fff;
+$sidebar-light-submenu-hover-color: $white;
+$sidebar-light-submenu-active-color: $white;
+$sidebar-light-menu-icon-color: $sidebar-light-menu-color;
+$sidebar-light-menu-arrow-color: #686868;
+$sidebar-light-profile-name-color: #404852;
+$sidebar-light-profile-title-color: #8d9498;
+
+$sidebar-dark-bg: #232227;
+$sidebar-dark-menu-color: #ffffff;
+$sidebar-dark-menu-active-bg: #4b49ac;
+$sidebar-dark-menu-active-color: $white;
+$sidebar-dark-menu-hover-bg: #4b49ac;
+$sidebar-dark-menu-hover-color: #fff;
+$sidebar-dark-submenu-color: $sidebar-dark-menu-color;
+$sidebar-dark-submenu-hover-bg: initial;
+$sidebar-dark-submenu-hover-color: #9a94a7;
+$sidebar-dark-menu-icon-color: $sidebar-dark-menu-color;
+$sidebar-dark-profile-name-color: #ffffff;
+$sidebar-dark-profile-title-color: #8d9498;
+
+$sidebar-menu-font-size: 0.875rem;
+$sidebar-menu-padding-left: 1rem;
+$sidebar-menu-padding-right: 1.937rem;
+$sidebar-menu-padding-top: 0.8125rem;
+$sidebar-menu-padding-bottom: 0.8125rem;
+
+$sidebar-submenu-padding: 0.25rem 0 0 3.07rem;
+$sidebar-submenu-font-size: 0.875rem;
+$sidebar-submenu-item-padding: 0.7rem 1rem;
+
+$sidebar-icon-font-size: 1rem;
+$sidebar-arrow-font-size: 0.625rem;
+
+$sidebar-profile-bg: transparent;
+$sidebar-profile-padding: 0 1.625rem 2.25rem 1.188rem;
+
+$sidebar-mini-menu-padding: 0.8125rem 1rem 0.8125rem 1rem;
+
+$sidebar-icon-only-menu-padding: 0.5rem 1.625rem 0.5rem 1.188rem;
+$sidebar-icon-only-submenu-padding: 0 0 0 1.5rem;
+
+$sidebar-box-shadow: 6px 16px 31px -18px #b7bcd1;
+
+$rtl-sidebar-submenu-padding: 0 4.5rem 0 0;
+
+$icon-only-collapse-width: 190px;
+$icon-only-menu-bg-light: $sidebar-light-bg;
+$icon-only-menu-bg-dark: $sidebar-dark-bg;
+
+///////// SIDEBAR ////////
+
+///////// BOXED LAYOUT ///////
+$boxed-container-width: 1200px;
+$boxed-layout-bg: #c6c8ca;
+///////// BOXED LAYOUT ///////
+
+///////// SETTINGS PANEL ////////
+
+$settings-panel-width: 300px;
+
+///////// NAVBAR ////////
+
+$navbar-default-bg: $white;
+$navbar-height: 60px;
+$navbar-menu-color: #6c7383;
+$navbar-font-size: 1rem;
+$navbar-icon-font-size: 0.9375rem;
+
+///////// NAVBAR ////////
+
+///////// CAROUSEL ////////
+$carousel-control-color: $white;
+$carousel-control-width: 15%;
+$carousel-control-opacity: 0.5;
+$carousel-control-hover-opacity: 0.9;
+$carousel-control-transition: opacity 0.15s ease;
+$carousel-control-icon-filter: null;
+
+$carousel-indicator-width: 30px;
+$carousel-indicator-height: 3px;
+$carousel-indicator-hit-area-height: 10px;
+$carousel-indicator-spacer: 3px;
+$carousel-indicator-opacity: 0.5;
+$carousel-indicator-active-bg: $white;
+$carousel-indicator-active-opacity: 1;
+$carousel-indicator-transition: opacity 0.6s ease;
+
+$carousel-caption-width: 70%;
+$carousel-caption-color: $white;
+$carousel-caption-padding-y: 1.25rem;
+$carousel-caption-spacer: 1.25rem;
+
+$carousel-control-icon-width: 2rem;
+
+$carousel-control-prev-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$carousel-control-color}'><path d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0'/></svg>");
+$carousel-control-next-icon-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$carousel-control-color}'><path d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708'/></svg>");
+
+$carousel-transition-duration: 0.6s;
+$carousel-transition: transform $carousel-transition-duration ease-in-out; // Define transform transition first if using multiple transitions (e.g., `transform 2s ease, opacity .5s ease-out`)
+
+$carousel-dark-indicator-active-bg: $black; // Deprecated in v5.3.4
+$carousel-dark-caption-color: $black; // Deprecated in v5.3.4
+$carousel-dark-control-icon-filter: invert(1) grayscale(100); // Deprecated in v5.3.4
+///////// CAROUSEL ////////

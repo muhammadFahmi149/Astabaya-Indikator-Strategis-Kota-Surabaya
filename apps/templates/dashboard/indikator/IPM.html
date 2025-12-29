@@ -1,0 +1,1327 @@
+{% extends 'dashboard/dashboard.html' %} 
+{% load static %} 
+{% block dashboard_content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+<div class="container py-4">
+  <h3 class="font-weight-bold mb-4">Indeks Pembangunan Manusia (IPM)</h3>
+  
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs mb-4" id="ipmTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="main-ipm-tab" data-bs-toggle="tab" data-bs-target="#main-ipm" type="button" role="tab" aria-controls="main-ipm" aria-selected="true">
+        <i class="fas fa-chart-line me-2"></i>IPM Utama
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="sub-categories-tab" data-bs-toggle="tab" data-bs-target="#sub-categories" type="button" role="tab" aria-controls="sub-categories" aria-selected="false">
+        <i class="fas fa-layer-group me-2"></i>Sub Kategori IPM
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="ipmTabsContent">
+    <!-- Tab 1: IPM Utama -->
+    <div class="tab-pane fade show active" id="main-ipm" role="tabpanel" aria-labelledby="main-ipm-tab">
+      <!-- Sub-Category Summary Carousel -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="sub-category-carousel-wrapper" style="position: relative; overflow: hidden; padding: 10px 0">
+            <!-- Carousel Container -->
+            <div class="sub-category-carousel-track" id="subCategoryCarousel" style="display: flex; gap: 20px; will-change: transform">
+              <!-- Original Set -->
+              <div class="sub-category-carousel-content">
+                <!-- IPM UHH SP Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Usia Harapan Hidup saat Lahir</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_uhh_sp_surabaya and latest_uhh_sp_surabaya.value %}
+                          {{ latest_uhh_sp_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_uhh_sp_surabaya %}Tahun {{ latest_uhh_sp_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-heartbeat" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM HLS Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Harapan Lama Sekolah</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_hls_surabaya and latest_hls_surabaya.value %}
+                          {{ latest_hls_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_hls_surabaya %}Tahun {{ latest_hls_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-graduation-cap" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM RLS Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Rata-rata Lama Sekolah</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_rls_surabaya and latest_rls_surabaya.value %}
+                          {{ latest_rls_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_rls_surabaya %}Tahun {{ latest_rls_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-book-reader" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Pengeluaran per Kapita Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Pengeluaran per Kapita</h6>
+                      <h3 style="font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_pengeluaran_surabaya and latest_pengeluaran_surabaya.value %}
+                          {{ latest_pengeluaran_surabaya.value|floatformat:0 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_pengeluaran_surabaya %}Tahun {{ latest_pengeluaran_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-money-bill-wave" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Indeks Kesehatan Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Indeks Kesehatan</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_indeks_kesehatan_surabaya and latest_indeks_kesehatan_surabaya.value %}
+                          {{ latest_indeks_kesehatan_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_indeks_kesehatan_surabaya %}Tahun {{ latest_indeks_kesehatan_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-heart" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Indeks Hidup Layak Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Indeks Hidup Layak</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_indeks_hidup_layak_surabaya and latest_indeks_hidup_layak_surabaya.value %}
+                          {{ latest_indeks_hidup_layak_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_indeks_hidup_layak_surabaya %}Tahun {{ latest_indeks_hidup_layak_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-home" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Indeks Pendidikan Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(0, 0, 0, 0.7); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Indeks Pendidikan</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0; color: #333;">
+                        {% if latest_indeks_pendidikan_surabaya and latest_indeks_pendidikan_surabaya.value %}
+                          {{ latest_indeks_pendidikan_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(0, 0, 0, 0.7); font-size: 11px;">
+                        {% if latest_indeks_pendidikan_surabaya %}Tahun {{ latest_indeks_pendidikan_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-school" style="font-size: 50px; color: #333;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Duplicate Set for Seamless Loop -->
+              <div class="sub-category-carousel-content" aria-hidden="true">
+                <!-- IPM UHH SP Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Usia Harapan Hidup saat Lahir</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_uhh_sp_surabaya and latest_uhh_sp_surabaya.value %}
+                          {{ latest_uhh_sp_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_uhh_sp_surabaya %}Tahun {{ latest_uhh_sp_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-heartbeat" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM HLS Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Harapan Lama Sekolah</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_hls_surabaya and latest_hls_surabaya.value %}
+                          {{ latest_hls_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_hls_surabaya %}Tahun {{ latest_hls_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-graduation-cap" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM RLS Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Rata-rata Lama Sekolah</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_rls_surabaya and latest_rls_surabaya.value %}
+                          {{ latest_rls_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_rls_surabaya %}Tahun {{ latest_rls_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-book-reader" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Pengeluaran per Kapita Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Pengeluaran per Kapita</h6>
+                      <h3 style="font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_pengeluaran_surabaya and latest_pengeluaran_surabaya.value %}
+                          {{ latest_pengeluaran_surabaya.value|floatformat:0 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_pengeluaran_surabaya %}Tahun {{ latest_pengeluaran_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-money-bill-wave" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Indeks Kesehatan Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Indeks Kesehatan</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_indeks_kesehatan_surabaya and latest_indeks_kesehatan_surabaya.value %}
+                          {{ latest_indeks_kesehatan_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_indeks_kesehatan_surabaya %}Tahun {{ latest_indeks_kesehatan_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-heart" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Indeks Hidup Layak Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Indeks Hidup Layak</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0;">
+                        {% if latest_indeks_hidup_layak_surabaya and latest_indeks_hidup_layak_surabaya.value %}
+                          {{ latest_indeks_hidup_layak_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">
+                        {% if latest_indeks_hidup_layak_surabaya %}Tahun {{ latest_indeks_hidup_layak_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-home" style="font-size: 50px;"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- IPM Indeks Pendidikan Card -->
+                <div class="carousel-slide" style="min-width: 280px; flex-shrink: 0;">
+                  <div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; border-radius: 12px; padding: 20px; min-height: 140px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
+                    <div style="position: relative; z-index: 2;">
+                      <h6 style="color: rgba(0, 0, 0, 0.7); font-size: 12px; font-weight: 500; margin: 0 0 8px 0;">Indeks Pendidikan</h6>
+                      <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 4px 0; color: #333;">
+                        {% if latest_indeks_pendidikan_surabaya and latest_indeks_pendidikan_surabaya.value %}
+                          {{ latest_indeks_pendidikan_surabaya.value|floatformat:2 }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </h3>
+                      <small style="color: rgba(0, 0, 0, 0.7); font-size: 11px;">
+                        {% if latest_indeks_pendidikan_surabaya %}Tahun {{ latest_indeks_pendidikan_surabaya.year }}{% else %}-{% endif %}
+                      </small>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; opacity: 0.15; z-index: 1;">
+                      <i class="fas fa-school" style="font-size: 50px; color: #333;"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="row mb-4">
+        <!-- Kota Surabaya Card -->
+        <div class="col-md-6 mb-3">
+          <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 24px; min-height: 180px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+            <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+              <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">Kota Surabaya</h6>
+              <h2 style="font-size: 42px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+                {% if latest_surabaya and latest_surabaya.ipm_value %}
+                  {{ latest_surabaya.ipm_value|floatformat:2 }}
+                {% else %}
+                  -
+                {% endif %}
+              </h2>
+              <div style="display: flex; align-items: center; margin-top: 8px;">
+                {% if surabaya_change is not None %}
+                  <span style="font-size: 16px; font-weight: 600; margin-right: 8px;">
+                    {% if surabaya_change > 0 %}
+                      <i class="fas fa-arrow-up" style="color: #f5576c;"></i>
+                    {% elif surabaya_change < 0 %}
+                      <i class="fas fa-arrow-down" style="color: #34d399;"></i>
+                    {% else %}
+                      <i class="fas fa-minus" style="color: rgba(255, 255, 255, 0.8);"></i>
+                    {% endif %}
+                  </span>
+                  <span style="font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                    {% if surabaya_change > 0 %}
+                      +{{ surabaya_change|floatformat:2 }}
+                    {% elif surabaya_change < 0 %}
+                      {{ surabaya_change|floatformat:2 }}
+                    {% else %}
+                      Tidak ada perubahan
+                    {% endif %}
+                    {% if previous_surabaya %} dari {{ previous_surabaya.year }}{% endif %}
+                  </span>
+                {% endif %}
+              </div>
+              <small style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-top: auto;">
+                {% if latest_surabaya %}
+                  Tahun {{ latest_surabaya.year }}
+                {% else %}
+                  Data tidak tersedia
+                {% endif %}
+              </small>
+            </div>
+            <div style="position: absolute; top: 20px; right: 20px; opacity: 0.15; z-index: 1;">
+              <i class="fas fa-city" style="font-size: 80px;"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jawa Timur Card -->
+        <div class="col-md-6 mb-3">
+          <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; padding: 24px; min-height: 180px; position: relative; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; flex-direction: column;">
+            <div style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column;">
+              <h6 style="color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">Jawa Timur</h6>
+              <h2 style="font-size: 42px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
+                {% if latest_jatim and latest_jatim.ipm_value %}
+                  {{ latest_jatim.ipm_value|floatformat:2 }}
+                {% else %}
+                  -
+                {% endif %}
+              </h2>
+              <div style="display: flex; align-items: center; margin-top: 8px;">
+                {% if jatim_change is not None %}
+                  <span style="font-size: 16px; font-weight: 600; margin-right: 8px;">
+                    {% if jatim_change > 0 %}
+                      <i class="fas fa-arrow-up" style="color: #f5576c;"></i>
+                    {% elif jatim_change < 0 %}
+                      <i class="fas fa-arrow-down" style="color: #34d399;"></i>
+                    {% else %}
+                      <i class="fas fa-minus" style="color: rgba(255, 255, 255, 0.8);"></i>
+                    {% endif %}
+                  </span>
+                  <span style="font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                    {% if jatim_change > 0 %}
+                      +{{ jatim_change|floatformat:2 }}
+                    {% elif jatim_change < 0 %}
+                      {{ jatim_change|floatformat:2 }}
+                    {% else %}
+                      Tidak ada perubahan
+                    {% endif %}
+                    {% if previous_jatim %} dari {{ previous_jatim.year }}{% endif %}
+                  </span>
+                {% endif %}
+              </div>
+              <small style="color: rgba(255, 255, 255, 0.8); font-size: 13px; margin-top: auto;">
+                {% if latest_jatim %}
+                  Tahun {{ latest_jatim.year }}
+                {% else %}
+                  Data tidak tersedia
+                {% endif %}
+              </small>
+            </div>
+            <div style="position: absolute; top: 20px; right: 20px; opacity: 0.15; z-index: 1;">
+              <i class="fas fa-map-marked-alt" style="font-size: 80px;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Line Chart -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0">Trend IPM Kota Surabaya dan Jawa Timur</h4>
+            </div>
+            <div id="comparisonLineChart" style="width: 100%; height: 400px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Chart for Recent Years -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0">Perbandingan IPM 5 Tahun Terakhir</h4>
+            </div>
+            <div id="comparisonBarChart" style="width: 100%; height: 400px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Sub Kategori IPM -->
+    <div class="tab-pane fade" id="sub-categories" role="tabpanel" aria-labelledby="sub-categories-tab">
+      <!-- Visualisasi untuk setiap sub-kategori -->
+      <!-- UHH SP -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-heartbeat me-2"></i>Usia Harapan Hidup saat Lahir (SP) - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="uhhSpLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="uhhSpBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HLS -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Harapan Lama Sekolah (HLS) - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="hlsLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="hlsBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RLS -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-book-reader me-2"></i>Rata-rata Lama Sekolah (RLS) - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="rlsLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="rlsBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pengeluaran per Kapita -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-money-bill-wave me-2"></i>Pengeluaran per Kapita - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="pengeluaranLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="pengeluaranBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indeks Kesehatan -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-heart me-2"></i>Indeks Kesehatan - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="indeksKesehatanLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="indeksKesehatanBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indeks Hidup Layak -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-home me-2"></i>Indeks Hidup Layak - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="indeksHidupLayakLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="indeksHidupLayakBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indeks Pendidikan -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="dashboard-card">
+            <h5 class="mb-3"><i class="fas fa-school me-2"></i>Indeks Pendidikan - Kota Surabaya</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div id="indeksPendidikanLineChart" style="width: 100%; height: 350px;"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="indeksPendidikanBarChart" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dashboard-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  .nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 24px;
+    font-weight: 500;
+  }
+
+  .nav-tabs .nav-link:hover {
+    border-bottom-color: #dee2e6;
+    color: #495057;
+  }
+
+  .nav-tabs .nav-link.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background-color: transparent;
+  }
+
+  .sub-category-carousel-wrapper {
+    overflow: hidden !important;
+  }
+
+  .sub-category-carousel-track {
+    display: flex !important;
+    gap: 20px;
+    will-change: transform;
+    /* Animation handled by JavaScript for seamless continuous scroll */
+  }
+
+  .sub-category-carousel-content {
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+    min-width: fit-content;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // ========== Sub-Category Carousel - Continuous Infinite Scroll to Right ==========
+    (function () {
+      const carousel = document.getElementById("subCategoryCarousel");
+      if (!carousel) return;
+
+      const contentSets = carousel.querySelectorAll(".sub-category-carousel-content");
+      if (contentSets.length < 2) return;
+
+      // Get width of one content set
+      function getContentSetWidth() {
+        return contentSets[0] ? contentSets[0].offsetWidth + 20 : 0; // +20 for gap
+      }
+
+      let currentPosition = 0;
+      let isPaused = false;
+      let animationFrameId;
+      const scrollSpeed = 1.5; // pixels per frame (adjust for speed)
+
+      function animate() {
+        if (!isPaused) {
+          const contentSetWidth = getContentSetWidth();
+          
+          // Move to the right (negative translateX = content moves right)
+          currentPosition += scrollSpeed;
+
+          // When we've scrolled past one complete set, reset seamlessly
+          if (currentPosition >= contentSetWidth) {
+            // Reset position without transition for seamless loop
+            currentPosition = currentPosition - contentSetWidth;
+          }
+
+          carousel.style.transform = `translateX(-${currentPosition}px)`;
+        }
+
+        animationFrameId = requestAnimationFrame(animate);
+      }
+
+      // Pause on hover
+      const carouselWrapper = carousel.closest(".sub-category-carousel-wrapper");
+      if (carouselWrapper) {
+        carouselWrapper.addEventListener("mouseenter", () => {
+          isPaused = true;
+        });
+
+        carouselWrapper.addEventListener("mouseleave", () => {
+          isPaused = false;
+        });
+      }
+
+      // Start animation
+      animate();
+
+      // Handle window resize
+      let resizeTimeout;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          const contentSetWidth = getContentSetWidth();
+          if (currentPosition >= contentSetWidth) {
+            currentPosition = currentPosition % contentSetWidth;
+          }
+          // Resize all charts
+          if (window.comparisonLineChartInstance) {
+            window.comparisonLineChartInstance.resize();
+          }
+          if (window.comparisonBarChartInstance) {
+            window.comparisonBarChartInstance.resize();
+          }
+          const chartIds = ['uhhSpLineChart', 'uhhSpBarChart', 'hlsLineChart', 'hlsBarChart', 
+                            'rlsLineChart', 'rlsBarChart', 'pengeluaranLineChart', 'pengeluaranBarChart',
+                            'indeksKesehatanLineChart', 'indeksKesehatanBarChart', 
+                            'indeksHidupLayakLineChart', 'indeksHidupLayakBarChart',
+                            'indeksPendidikanLineChart', 'indeksPendidikanBarChart'];
+          chartIds.forEach(id => {
+            if (window[id + 'Instance']) {
+              window[id + 'Instance'].resize();
+            }
+          });
+        }, 250);
+      });
+    })();
+
+    // ========== IPM Main Charts ==========
+    // Prepare data from Django template
+    const surabayaData = [
+      {% for data in surabaya_data %}
+      {
+        year: {{ data.year }},
+        value: {{ data.ipm_value|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const jatimData = [
+      {% for data in jatim_data %}
+      {
+        year: {{ data.year }},
+        value: {{ data.ipm_value|default:"null" }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // Sort data by year
+    surabayaData.sort((a, b) => a.year - b.year);
+    jatimData.sort((a, b) => a.year - b.year);
+
+    // Get all unique years
+    const allYears = [...new Set([...surabayaData.map(d => d.year), ...jatimData.map(d => d.year)])].sort();
+
+    // Calculate min and max values from all data for dynamic scaling
+    const allValues = [
+      ...surabayaData.map(d => d.value).filter(v => v !== null),
+      ...jatimData.map(d => d.value).filter(v => v !== null)
+    ];
+    
+    const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
+    const maxValue = allValues.length > 0 ? Math.max(...allValues) : 100;
+    
+    // Add padding: 5% below min and 10% above max
+    const yMin = Math.max(0, minValue - (minValue * 0.05));
+    const yMax = maxValue + (maxValue * 0.10);
+    
+    // Round to nice numbers
+    const roundedYMin = Math.floor(yMin / 5) * 5;
+    const roundedYMax = Math.ceil(yMax / 5) * 5;
+
+    // Create comparison line chart
+    function createComparisonLineChart() {
+      const chartDom = document.getElementById('comparisonLineChart');
+      
+      // Dispose existing chart if it exists
+      if (window.comparisonLineChartInstance) {
+        window.comparisonLineChartInstance.dispose();
+      }
+
+      // Prepare data arrays aligned by year
+      const labels = allYears.map(y => y.toString());
+      const surabayaValues = allYears.map(year => {
+        const data = surabayaData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const jatimValues = allYears.map(year => {
+        const data = jatimData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+
+      window.comparisonLineChartInstance = echarts.init(chartDom);
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(params) {
+            let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+            params.forEach(function(item) {
+              if (item.value === null || item.value === undefined) {
+                result += item.marker + item.seriesName + ': Data tidak tersedia<br/>';
+              } else {
+                result += item.marker + item.seriesName + ': ' + item.value.toFixed(2) + '<br/>';
+              }
+            });
+            return result;
+          }
+        },
+        legend: {
+          data: ['Kota Surabaya', 'Jawa Timur'],
+          top: 10
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: labels,
+          name: 'Tahun',
+          nameLocation: 'middle',
+          nameGap: 30
+        },
+        yAxis: {
+          type: 'value',
+          min: roundedYMin,
+          max: roundedYMax,
+          interval: 5,
+          axisLabel: {
+            formatter: function(value) {
+              return value.toFixed(1);
+            }
+          },
+          name: 'Nilai IPM',
+          nameLocation: 'middle',
+          nameGap: 50
+        },
+        series: [
+          {
+            name: 'Kota Surabaya',
+            type: 'line',
+            smooth: 0.4,
+            data: surabayaValues,
+            areaStyle: {
+              color: 'rgba(102, 126, 234, 0.1)'
+            },
+            lineStyle: {
+              color: 'rgb(102, 126, 234)',
+              width: 2
+            },
+            itemStyle: {
+              color: 'rgb(102, 126, 234)',
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            symbol: 'circle',
+            symbolSize: 8
+          },
+          {
+            name: 'Jawa Timur',
+            type: 'line',
+            smooth: 0.4,
+            data: jatimValues,
+            areaStyle: {
+              color: 'rgba(240, 147, 251, 0.1)'
+            },
+            lineStyle: {
+              color: 'rgb(240, 147, 251)',
+              width: 2
+            },
+            itemStyle: {
+              color: 'rgb(240, 147, 251)',
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            symbol: 'circle',
+            symbolSize: 8
+          }
+        ]
+      };
+      window.comparisonLineChartInstance.setOption(option);
+    }
+
+    // Create comparison bar chart for recent years
+    function createComparisonBarChart() {
+      const chartDom = document.getElementById('comparisonBarChart');
+      
+      // Dispose existing chart if it exists
+      if (window.comparisonBarChartInstance) {
+        window.comparisonBarChartInstance.dispose();
+      }
+
+      // Get last 5 years or all available years
+      const recentYears = allYears.slice(-5);
+      
+      const labels = recentYears.map(y => y.toString());
+      const surabayaValues = recentYears.map(year => {
+        const data = surabayaData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+      const jatimValues = recentYears.map(year => {
+        const data = jatimData.find(d => d.year === year);
+        return data && data.value !== null ? data.value : null;
+      });
+
+      window.comparisonBarChartInstance = echarts.init(chartDom);
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: function(params) {
+            let result = 'Tahun: ' + params[0].axisValue + '<br/>';
+            params.forEach(function(item) {
+              if (item.value === null || item.value === undefined) {
+                result += item.marker + item.seriesName + ': Data tidak tersedia<br/>';
+              } else {
+                result += item.marker + item.seriesName + ': ' + item.value.toFixed(2) + '<br/>';
+              }
+            });
+            return result;
+          }
+        },
+        legend: {
+          data: ['Kota Surabaya', 'Jawa Timur'],
+          top: 10
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: labels,
+          name: 'Tahun',
+          nameLocation: 'middle',
+          nameGap: 30
+        },
+        yAxis: {
+          type: 'value',
+          min: roundedYMin,
+          max: roundedYMax,
+          interval: 5,
+          axisLabel: {
+            formatter: function(value) {
+              return value.toFixed(1);
+            }
+          },
+          name: 'Nilai IPM',
+          nameLocation: 'middle',
+          nameGap: 50
+        },
+        series: [
+          {
+            name: 'Kota Surabaya',
+            type: 'bar',
+            data: surabayaValues,
+            itemStyle: {
+              color: 'rgba(102, 126, 234, 0.8)',
+              borderColor: 'rgb(102, 126, 234)',
+              borderWidth: 2,
+              borderRadius: [6, 6, 0, 0]
+            }
+          },
+          {
+            name: 'Jawa Timur',
+            type: 'bar',
+            data: jatimValues,
+            itemStyle: {
+              color: 'rgba(240, 147, 251, 0.8)',
+              borderColor: 'rgb(240, 147, 251)',
+              borderWidth: 2,
+              borderRadius: [6, 6, 0, 0]
+            }
+          }
+        ]
+      };
+      window.comparisonBarChartInstance.setOption(option);
+    }
+
+    // Initialize charts only when main-ipm tab is active
+    const mainIpmTab = document.getElementById('main-ipm-tab');
+    const subCategoriesTab = document.getElementById('sub-categories-tab');
+    const mainIpmPane = document.getElementById('main-ipm');
+    
+    function initializeCharts() {
+      if (mainIpmPane.classList.contains('active')) {
+        createComparisonLineChart();
+        createComparisonBarChart();
+      }
+    }
+
+    // Check URL hash and switch to appropriate tab
+    if (window.location.hash === '#sub-categories') {
+      const tab = new bootstrap.Tab(subCategoriesTab);
+      tab.show();
+    } else {
+      // Initialize on page load
+      initializeCharts();
+    }
+
+    // Re-initialize when main-ipm tab is shown
+    mainIpmTab.addEventListener('shown.bs.tab', function () {
+      setTimeout(() => {
+        createComparisonLineChart();
+        createComparisonBarChart();
+        // Resize charts when tab is shown
+        if (window.comparisonLineChartInstance) {
+          window.comparisonLineChartInstance.resize();
+        }
+        if (window.comparisonBarChartInstance) {
+          window.comparisonBarChartInstance.resize();
+        }
+      }, 100);
+    });
+
+    // Update URL hash when switching tabs
+    subCategoriesTab.addEventListener('shown.bs.tab', function () {
+      window.location.hash = 'sub-categories';
+    });
+
+    mainIpmTab.addEventListener('shown.bs.tab', function () {
+      if (window.location.hash === '#sub-categories') {
+        window.history.replaceState(null, null, window.location.pathname);
+      }
+    });
+
+    // ========== Sub-Category Charts ==========
+    
+    // Helper function to create line chart for sub-category
+    function createSubCategoryLineChart(canvasId, data, title, color) {
+      const chartDom = document.getElementById(canvasId);
+      if (!chartDom) return;
+      
+      // Dispose existing chart if it exists
+      if (window[canvasId + 'Instance']) {
+        window[canvasId + 'Instance'].dispose();
+      }
+
+      const labels = data.map(d => d.year.toString());
+      const values = data.map(d => d.value !== null ? d.value : null);
+
+      // Calculate min and max for scaling
+      const validValues = values.filter(v => v !== null);
+      const minValue = validValues.length > 0 ? Math.min(...validValues) : 0;
+      const maxValue = validValues.length > 0 ? Math.max(...validValues) : 100;
+      const yMin = Math.max(0, minValue - (minValue * 0.05));
+      const yMax = maxValue + (maxValue * 0.10);
+
+      // Convert rgb to rgba for areaStyle
+      const rgbaColor = color.replace('rgb', 'rgba').replace(')', ', 0.1)');
+
+      window[canvasId + 'Instance'] = echarts.init(chartDom);
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          formatter: function(params) {
+            if (params[0].value === null || params[0].value === undefined) {
+              return params[0].name + '<br/>' + params[0].marker + params[0].seriesName + ': Data tidak tersedia';
+            }
+            return params[0].name + '<br/>' + params[0].marker + params[0].seriesName + ': ' + params[0].value.toFixed(2);
+          }
+        },
+        legend: {
+          data: [title],
+          top: 10
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: labels,
+          name: 'Tahun',
+          nameLocation: 'middle',
+          nameGap: 30
+        },
+        yAxis: {
+          type: 'value',
+          min: yMin,
+          max: yMax,
+          name: 'Nilai',
+          nameLocation: 'middle',
+          nameGap: 50
+        },
+        series: [{
+          name: title,
+          type: 'line',
+          smooth: 0.4,
+          data: values,
+          areaStyle: {
+            color: rgbaColor
+          },
+          lineStyle: {
+            color: color,
+            width: 2
+          },
+          itemStyle: {
+            color: color,
+            borderColor: '#fff',
+            borderWidth: 2
+          },
+          symbol: 'circle',
+          symbolSize: 8
+        }]
+      };
+      window[canvasId + 'Instance'].setOption(option);
+    }
+
+    // Helper function to create bar chart for sub-category
+    function createSubCategoryBarChart(canvasId, data, title, color) {
+      const chartDom = document.getElementById(canvasId);
+      if (!chartDom) return;
+      
+      // Dispose existing chart if it exists
+      if (window[canvasId + 'Instance']) {
+        window[canvasId + 'Instance'].dispose();
+      }
+
+      // Get last 5 years
+      const recentData = data.slice(-5);
+      const labels = recentData.map(d => d.year.toString());
+      const values = recentData.map(d => d.value !== null ? d.value : null);
+
+      // Calculate min and max for scaling
+      const validValues = values.filter(v => v !== null);
+      const minValue = validValues.length > 0 ? Math.min(...validValues) : 0;
+      const maxValue = validValues.length > 0 ? Math.max(...validValues) : 100;
+      const yMin = Math.max(0, minValue - (minValue * 0.05));
+      const yMax = maxValue + (maxValue * 0.10);
+
+      // Convert rgb to rgba for backgroundColor
+      const rgbaColor = color.replace('rgb', 'rgba').replace(')', ', 0.8)');
+
+      window[canvasId + 'Instance'] = echarts.init(chartDom);
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: function(params) {
+            if (params[0].value === null || params[0].value === undefined) {
+              return params[0].name + '<br/>' + params[0].marker + params[0].seriesName + ': Data tidak tersedia';
+            }
+            return params[0].name + '<br/>' + params[0].marker + params[0].seriesName + ': ' + params[0].value.toFixed(2);
+          }
+        },
+        legend: {
+          data: [title],
+          top: 10
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: labels,
+          name: 'Tahun',
+          nameLocation: 'middle',
+          nameGap: 30
+        },
+        yAxis: {
+          type: 'value',
+          min: yMin,
+          max: yMax,
+          name: 'Nilai',
+          nameLocation: 'middle',
+          nameGap: 50
+        },
+        series: [{
+          name: title,
+          type: 'bar',
+          data: values,
+          itemStyle: {
+            color: rgbaColor,
+            borderColor: color,
+            borderWidth: 2,
+            borderRadius: [6, 6, 0, 0]
+          }
+        }]
+      };
+      window[canvasId + 'Instance'].setOption(option);
+    }
+
+    // Prepare sub-category data
+    const uhhSpData = [
+      {% for data in uhh_sp_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const hlsData = [
+      {% for data in hls_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const rlsData = [
+      {% for data in rls_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const pengeluaranData = [
+      {% for data in pengeluaran_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const indeksKesehatanData = [
+      {% for data in indeks_kesehatan_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const indeksHidupLayakData = [
+      {% for data in indeks_hidup_layak_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const indeksPendidikanData = [
+      {% for data in indeks_pendidikan_surabaya_data %}
+      { year: {{ data.year }}, value: {{ data.value|default:"null" }} }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    // Initialize sub-category charts when sub-categories tab is shown
+    function initializeSubCategoryCharts() {
+      // UHH SP
+      if (uhhSpData.length > 0) {
+        createSubCategoryLineChart('uhhSpLineChart', uhhSpData, 'UHH SP', 'rgb(102, 126, 234)');
+        createSubCategoryBarChart('uhhSpBarChart', uhhSpData, 'UHH SP', 'rgb(102, 126, 234)');
+      }
+
+      // HLS
+      if (hlsData.length > 0) {
+        createSubCategoryLineChart('hlsLineChart', hlsData, 'HLS', 'rgb(240, 147, 251)');
+        createSubCategoryBarChart('hlsBarChart', hlsData, 'HLS', 'rgb(240, 147, 251)');
+      }
+
+      // RLS
+      if (rlsData.length > 0) {
+        createSubCategoryLineChart('rlsLineChart', rlsData, 'RLS', 'rgb(79, 172, 254)');
+        createSubCategoryBarChart('rlsBarChart', rlsData, 'RLS', 'rgb(79, 172, 254)');
+      }
+
+      // Pengeluaran per Kapita
+      if (pengeluaranData.length > 0) {
+        createSubCategoryLineChart('pengeluaranLineChart', pengeluaranData, 'Pengeluaran per Kapita', 'rgb(67, 233, 123)');
+        createSubCategoryBarChart('pengeluaranBarChart', pengeluaranData, 'Pengeluaran per Kapita', 'rgb(67, 233, 123)');
+      }
+
+      // Indeks Kesehatan
+      if (indeksKesehatanData.length > 0) {
+        createSubCategoryLineChart('indeksKesehatanLineChart', indeksKesehatanData, 'Indeks Kesehatan', 'rgb(250, 112, 154)');
+        createSubCategoryBarChart('indeksKesehatanBarChart', indeksKesehatanData, 'Indeks Kesehatan', 'rgb(250, 112, 154)');
+      }
+
+      // Indeks Hidup Layak
+      if (indeksHidupLayakData.length > 0) {
+        createSubCategoryLineChart('indeksHidupLayakLineChart', indeksHidupLayakData, 'Indeks Hidup Layak', 'rgb(48, 207, 208)');
+        createSubCategoryBarChart('indeksHidupLayakBarChart', indeksHidupLayakData, 'Indeks Hidup Layak', 'rgb(48, 207, 208)');
+      }
+
+      // Indeks Pendidikan
+      if (indeksPendidikanData.length > 0) {
+        createSubCategoryLineChart('indeksPendidikanLineChart', indeksPendidikanData, 'Indeks Pendidikan', 'rgb(168, 237, 234)');
+        createSubCategoryBarChart('indeksPendidikanBarChart', indeksPendidikanData, 'Indeks Pendidikan', 'rgb(168, 237, 234)');
+      }
+    }
+
+    // Initialize sub-category charts when tab is shown
+    subCategoriesTab.addEventListener('shown.bs.tab', function () {
+      setTimeout(() => {
+        initializeSubCategoryCharts();
+        // Resize all sub-category charts
+        const chartIds = ['uhhSpLineChart', 'uhhSpBarChart', 'hlsLineChart', 'hlsBarChart', 
+                          'rlsLineChart', 'rlsBarChart', 'pengeluaranLineChart', 'pengeluaranBarChart',
+                          'indeksKesehatanLineChart', 'indeksKesehatanBarChart', 
+                          'indeksHidupLayakLineChart', 'indeksHidupLayakBarChart',
+                          'indeksPendidikanLineChart', 'indeksPendidikanBarChart'];
+        chartIds.forEach(id => {
+          if (window[id + 'Instance']) {
+            window[id + 'Instance'].resize();
+          }
+        });
+      }, 100);
+    });
+
+    // Initialize on page load if sub-categories tab is active
+    if (window.location.hash === '#sub-categories') {
+      setTimeout(() => {
+        initializeSubCategoryCharts();
+      }, 300);
+    }
+  });
+</script>
+{% endblock %}
