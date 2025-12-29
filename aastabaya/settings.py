@@ -22,9 +22,12 @@ load_dotenv()
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Access Key
-ACCESS_KEY = os.getenv("ACCESS_KEY", "")
-if not ACCESS_KEY and not DEBUG:
-    raise RuntimeError("ACCESS_KEY must be set in production")
+ACCESS_KEY = os.getenv("ACCESS_KEY")
+if not ACCESS_KEY:
+    if DEBUG:
+        print("⚠️ ACCESS_KEY not set (development mode)")
+    else:
+        print("⚠️ ACCESS_KEY not set (production mode)")
 
 # Secret Key
 SECRET_KEY = os.getenv(
@@ -34,13 +37,10 @@ SECRET_KEY = os.getenv(
 
 # API Key 
 API_KEY = os.getenv('API_KEY')
-if not API_KEY:
-    raise ValueError("API_KEY not found in environment variables. Please check your .env file.")
 
 # OPENROUTER API KEY
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
-if not OPENROUTER_API_KEY:
-    raise ValueError("OPENROUTER_API_KEY not found in environment variables. Please check your .env file.")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
