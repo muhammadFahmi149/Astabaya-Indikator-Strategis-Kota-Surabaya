@@ -30,10 +30,7 @@ if not ACCESS_KEY:
         print("⚠️ ACCESS_KEY not set (production mode)")
 
 # Secret Key
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "django-insecure-dev-only-change-later"
-)
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # API Key 
 API_KEY = os.getenv('API_KEY')
