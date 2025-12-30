@@ -160,11 +160,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'apps', 'static'),
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+if DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'apps' / 'static'
+    ]
+else:
+    STATICFILES_DIRS = []
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -226,6 +231,13 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://astabaya-indikator-strategis-kota-surabaya-production.up.railway.app"
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Django APScheduler Configuration
 # Format untuk menyimpan job execution history (opsional, untuk monitoring)
