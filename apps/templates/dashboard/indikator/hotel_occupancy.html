@@ -22,8 +22,8 @@
               -
             {% endif %}
           </h3>
-          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
-            {% if changes.tpk is not None %}
+          <div class="tpk-change-container" style="display: flex; align-items: center; gap: 5px; margin-top: 8px; flex-wrap: wrap;">
+            {% if 'tpk' in changes and changes.tpk is not None %}
               {% if changes.tpk > 0 %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ changes.tpk|floatformat:2 }}%</span>
@@ -33,7 +33,9 @@
               {% else %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
               {% endif %}
-              {% if previous_month_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan sebelumnya</span>{% endif %}
+              {% if previous_month_data %}
+                <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan {{ previous_month_data.month|lower }}</span>
+              {% endif %}
             {% endif %}
           </div>
           <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
@@ -66,23 +68,25 @@
           <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">MKTJ</h6>
           <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
             {% if latest_month_data and latest_month_data.mktj %}
-              {{ latest_month_data.mktj|floatformat:0 }}
+              <span class="mktj-value" data-value="{{ latest_month_data.mktj|floatformat:0 }}">{{ latest_month_data.mktj|floatformat:0 }}</span>
             {% else %}
               -
             {% endif %}
           </h3>
-          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
-            {% if changes.mktj is not None %}
+          <div class="mktj-change-container" style="display: flex; align-items: center; gap: 5px; margin-top: 8px; flex-wrap: wrap;">
+            {% if 'mktj' in changes and changes.mktj is not None %}
               {% if changes.mktj > 0 %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
-                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ changes.mktj|floatformat:0 }}</span>
+                <span class="mktj-change-value" data-value="{{ changes.mktj|floatformat:0 }}" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ changes.mktj|floatformat:0 }}</span>
               {% elif changes.mktj < 0 %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▼</span>
-                <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ changes.mktj|floatformat:0 }}</span>
+                <span class="mktj-change-value" data-value="{{ changes.mktj|floatformat:0 }}" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">{{ changes.mktj|floatformat:0 }}</span>
               {% else %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
               {% endif %}
-              {% if previous_month_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan sebelumnya</span>{% endif %}
+              {% if previous_month_data %}
+                <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan {{ previous_month_data.month|lower }}</span>
+              {% endif %}
             {% endif %}
           </div>
           <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
@@ -120,8 +124,8 @@
               -
             {% endif %}
           </h3>
-          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
-            {% if changes.rlmtgab is not None %}
+          <div class="rlmtgab-change-container" style="display: flex; align-items: center; gap: 5px; margin-top: 8px; flex-wrap: wrap;">
+            {% if 'rlmtgab' in changes and changes.rlmtgab is not None %}
               {% if changes.rlmtgab > 0 %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ changes.rlmtgab|floatformat:2 }}</span>
@@ -131,7 +135,9 @@
               {% else %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
               {% endif %}
-              {% if previous_month_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan sebelumnya</span>{% endif %}
+              {% if previous_month_data %}
+                <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan {{ previous_month_data.month|lower }}</span>
+              {% endif %}
             {% endif %}
           </div>
           <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
@@ -164,13 +170,13 @@
           <h6 style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; margin: 0 0 10px 0;">GPR</h6>
           <h3 style="font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0;">
             {% if latest_month_data and latest_month_data.gpr %}
-              {{ latest_month_data.gpr|floatformat:2 }}
+              {{ latest_month_data.gpr|floatformat:2 }}%
             {% else %}
               -
             {% endif %}
           </h3>
-          <div style="display: flex; align-items: center; gap: 5px; margin-top: 8px;">
-            {% if changes.gpr is not None %}
+          <div class="gpr-change-container" style="display: flex; align-items: center; gap: 5px; margin-top: 8px; flex-wrap: wrap;">
+            {% if 'gpr' in changes and changes.gpr is not None %}
               {% if changes.gpr > 0 %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">▲</span>
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">+{{ changes.gpr|floatformat:2 }}</span>
@@ -180,7 +186,9 @@
               {% else %}
                 <span style="color: rgba(255, 255, 255, 0.9); font-size: 12px;">-</span>
               {% endif %}
-              {% if previous_month_data %} <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan sebelumnya</span>{% endif %}
+              {% if previous_month_data %}
+                <span style="color: rgba(255, 255, 255, 0.8); font-size: 11px;">dari bulan {{ previous_month_data.month|lower }}</span>
+              {% endif %}
             {% endif %}
           </div>
           <small style="color: rgba(255, 255, 255, 0.8); font-size: 11px; margin-top: auto;">
@@ -412,13 +420,16 @@
   /* Mobile: wider container for scrolling */
   @media (max-width: 767px) {
     .chart-container {
-      width: 150%;
-      min-width: 150%;
+      width: auto;
+      min-width: 100%;
+      max-width: none;
       height: 350px;
     }
 
     .chart-container-wrapper {
       border-radius: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
     }
 
     .chart-container-wrapper::-webkit-scrollbar {
@@ -548,6 +559,57 @@
     ];
     
     console.log('Raw occupancy data:', rawOccupancyData);
+    
+    // Debug: Check changes data from Django template
+    const changesData = {
+      tpk: {{ changes.tpk|default:"null" }},
+      mktj: {{ changes.mktj|default:"null" }},
+      rlmtgab: {{ changes.rlmtgab|default:"null" }},
+      gpr: {{ changes.gpr|default:"null" }}
+    };
+    console.log('Changes data:', changesData);
+
+    // Function to format number with thousand separators (Indonesian format using dot)
+    function formatNumberWithSeparator(num) {
+      if (num === null || num === undefined || isNaN(num)) return '0';
+      const numStr = Math.abs(num).toString().split('.')[0];
+      const formatted = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return num < 0 ? '-' + formatted : formatted;
+    }
+
+    // Function to format number with thousand separators and add "ribu" suffix if >= 1000
+    function formatNumberWithUnit(num, addRibu = false) {
+      if (num === null || num === undefined || isNaN(num)) return '0';
+      const numValue = parseFloat(num);
+      let formatted = formatNumberWithSeparator(Math.abs(numValue));
+      if (addRibu && numValue >= 1000) {
+        formatted += ' ribu';
+      }
+      return numValue < 0 ? '-' + formatted : formatted;
+    }
+
+    // Format MKTJ value (add thousand separator and "ribu" if >= 1000)
+    const mktjValueEl = document.querySelector('.mktj-value');
+    if (mktjValueEl) {
+      const value = parseFloat(mktjValueEl.dataset.value);
+      if (!isNaN(value)) {
+        mktjValueEl.textContent = formatNumberWithUnit(value, true);
+      }
+    }
+
+    // Format MKTJ change value (add thousand separator and "ribu" if >= 1000)
+    const mktjChangeEl = document.querySelector('.mktj-change-value');
+    if (mktjChangeEl) {
+      const value = parseFloat(mktjChangeEl.dataset.value);
+      if (!isNaN(value)) {
+        const absValue = Math.abs(value);
+        let formatted = formatNumberWithSeparator(absValue);
+        if (absValue >= 1000) {
+          formatted += ' ribu';
+        }
+        mktjChangeEl.textContent = (value >= 0 ? '+' : '') + formatted;
+      }
+    }
 
     // Month order for sorting (chronological order) - using full names
     const monthOrder = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
@@ -1061,6 +1123,11 @@
         selectedYear = parseInt(this.getAttribute('data-year'));
         document.getElementById('selectedYear').textContent = selectedYear;
         createLineChart(selectedYear);
+        // Adjust container width after chart update
+        setTimeout(() => {
+          adjustChartContainerWidth();
+          lineChart.resize();
+        }, 100);
       });
     });
 
@@ -1105,14 +1172,161 @@
         yearlyOption.grid[0].right = 20;
         yearlyOption.grid[0].bottom = 50;
         yearlyChart.setOption(yearlyOption);
+      } else {
+        // Reset to desktop grid settings
+        const lineOption = lineChart.getOption();
+        lineOption.grid[0].left = 60;
+        lineOption.grid[0].right = 40;
+        lineOption.grid[0].bottom = 60;
+        lineChart.setOption(lineOption);
+
+        const compOption = comparisonChart.getOption();
+        compOption.grid[0].left = 60;
+        compOption.grid[0].right = 40;
+        compOption.grid[0].bottom = 60;
+        comparisonChart.setOption(compOption);
+
+        const yearlyOption = yearlyChart.getOption();
+        yearlyOption.grid[0].left = 60;
+        yearlyOption.grid[0].right = 40;
+        yearlyOption.grid[0].bottom = 60;
+        yearlyChart.setOption(yearlyOption);
+      }
+    }
+
+    // Function to adjust chart container width based on actual data
+    function adjustChartContainerWidth() {
+      if (!isMobile()) {
+        // Reset to 100% width on desktop
+        document.querySelectorAll('.chart-container').forEach(el => {
+          el.style.width = '';
+          el.style.minWidth = '';
+          el.style.maxWidth = '';
+          const wrapper = el.parentElement;
+          if (wrapper && wrapper.classList.contains('chart-container-wrapper')) {
+            wrapper.style.overflowX = 'hidden';
+            // Reset scroll position
+            wrapper.scrollLeft = 0;
+          }
+        });
+        
+        // Resize all charts after resetting styles using requestAnimationFrame for better timing
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            lineChart.resize();
+            comparisonChart.resize();
+            yearlyChart.resize();
+          }, 50);
+        });
+        return;
+      }
+
+      // Helper function to calculate and set width for a chart container
+      function setContainerWidth(containerElement, chartInstance, dataLength) {
+        if (!containerElement || !chartInstance) return;
+
+        const wrapper = containerElement.parentElement;
+        if (!wrapper || !wrapper.classList.contains('chart-container-wrapper')) return;
+
+        // Calculate optimal width based on data points
+        // Use approximately 65px per data point for better readability on mobile
+        const viewportWidth = wrapper.clientWidth || (window.innerWidth - 60);
+        const minWidthPerPoint = 65;
+        const calculatedWidth = Math.max(viewportWidth, dataLength * minWidthPerPoint);
+
+        // Set the container width to exactly match content
+        containerElement.style.width = calculatedWidth + 'px';
+        containerElement.style.minWidth = viewportWidth + 'px';
+        containerElement.style.maxWidth = calculatedWidth + 'px';
+
+        // Resize chart after width change
+        setTimeout(() => {
+          chartInstance.resize();
+          
+          // Ensure scroll behavior is correct
+          const scrollWidth = containerElement.scrollWidth;
+          const clientWidth = wrapper.clientWidth;
+          
+          // If content fits in viewport, disable scroll
+          if (scrollWidth <= clientWidth) {
+            wrapper.style.overflowX = 'hidden';
+          } else {
+            wrapper.style.overflowX = 'auto';
+          }
+          
+          // Store data attribute to prevent duplicate handlers
+          if (!wrapper.dataset.scrollHandlerAdded) {
+            wrapper.dataset.scrollHandlerAdded = 'true';
+            
+            // Prevent scrolling beyond content bounds
+            wrapper.addEventListener('scroll', function() {
+              const maxScroll = this.scrollWidth - this.clientWidth;
+              if (this.scrollLeft > maxScroll) {
+                this.scrollLeft = maxScroll;
+              }
+              if (this.scrollLeft < 0) {
+                this.scrollLeft = 0;
+              }
+            }, { passive: true });
+          }
+        }, 150);
+      }
+
+      // Adjust line chart container
+      const lineChartEl = document.getElementById('tpkLineChart');
+      if (lineChartEl) {
+        const yearData = getDataByYear(selectedYear);
+        setContainerWidth(lineChartEl, lineChart, yearData.length);
+      }
+
+      // Adjust comparison chart container
+      const comparisonChartEl = document.getElementById('tpkComparisonChart');
+      if (comparisonChartEl) {
+        const recentYears = years.slice(-3);
+        const allMonths = new Set();
+        recentYears.forEach(year => {
+          const yearData = getDataByYear(year);
+          yearData.forEach(d => {
+            const normalizedMonth = d.normalizedMonth || normalizeMonth(d.month);
+            if (normalizedMonth) {
+              allMonths.add(normalizedMonth);
+            }
+          });
+        });
+        setContainerWidth(comparisonChartEl, comparisonChart, allMonths.size);
+      }
+
+      // Adjust yearly chart container
+      const yearlyChartEl = document.getElementById('tpkYearlyChart');
+      if (yearlyChartEl) {
+        const yearlyData = [
+          {% for data in yearly_occupancy_data %}
+          {
+            year: {{ data.year }},
+            tpk: {{ data.tpk|default:"null" }}
+          }{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ];
+        const validData = yearlyData.filter(d => d.tpk !== null && d.tpk !== undefined);
+        setContainerWidth(yearlyChartEl, yearlyChart, validData.length);
       }
     }
 
     // Call on initial load
-    setTimeout(adjustChartForMobile, 100);
+    setTimeout(() => {
+      adjustChartForMobile();
+      adjustChartContainerWidth();
+    }, 200);
 
-    // Call on window resize
-    window.addEventListener('resize', adjustChartForMobile);
+    // Call on window resize with debounce
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        adjustChartForMobile();
+        adjustChartContainerWidth();
+      }, 100);
+    });
 
     // Export functions for TPK Line Chart
     function exportTpkLineToExcel() {
