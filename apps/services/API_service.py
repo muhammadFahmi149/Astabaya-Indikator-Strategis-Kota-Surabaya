@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 import time
 import math
+import os
+import json
 from apps.models import (
     HumanDevelopmentIndex, Publication, Infographic, News, 
     HotelOccupancyCombined, HotelOccupancyYearly, GiniRatio,
