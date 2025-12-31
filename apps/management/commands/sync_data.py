@@ -1,3 +1,4 @@
+import time
 from django.core.management.base import BaseCommand
 from apps.services.API_service import (
     IPMService, 
@@ -27,6 +28,10 @@ from apps.services.API_service import (
 
 class Command(BaseCommand):
     help = 'Sinkronisasi data dari spreadsheet dan API BPS ke database'
+
+    def delay(self, seconds=2):
+        """Delay sederhana untuk menghindari Google Sheets API quota"""
+        time.sleep(seconds)
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -66,6 +71,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync IPM: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # Sync IPM sub-categories
@@ -93,6 +99,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM UHH SP: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
             
             # IPM HLS
@@ -109,6 +116,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM HLS: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
             
             # IPM RLS
@@ -125,6 +133,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM RLS: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
             
             # IPM Pengeluaran per Kapita
@@ -141,6 +150,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM Pengeluaran per Kapita: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
             
             # IPM Indeks Kesehatan
@@ -157,6 +167,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM Indeks Kesehatan: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
             
             # IPM Indeks Hidup Layak
@@ -173,6 +184,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM Indeks Hidup Layak: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
             
             # IPM Indeks Pendidikan
@@ -189,6 +201,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.ERROR(f'   [ERROR] Error sync IPM Indeks Pendidikan: {str(e)}')
                     )
+                self.delay(3)
                 self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'gini-ratio':
@@ -204,6 +217,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Gini Ratio: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'news':
@@ -219,6 +233,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync News: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'publications':
@@ -234,6 +249,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Publications: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'infographics':
@@ -249,6 +265,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Infographics: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'hotel-occupancy-combined' or sync_type == 'hotel-occupancy':
@@ -264,6 +281,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Hotel Occupancy (Gabung Semua): {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'hotel-occupancy-yearly' or sync_type == 'hotel-occupancy':
@@ -279,6 +297,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Hotel Occupancy (Year-to-Year): {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # Ketenagakerjaan sync
@@ -295,6 +314,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Ketenagakerjaan TPT: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'ketenagakerjaan-tpak' or sync_type == 'ketenagakerjaan':
@@ -310,6 +330,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Ketenagakerjaan TPAK: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # Kemiskinan sync
@@ -326,6 +347,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Kemiskinan Surabaya: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         if sync_type == 'all' or sync_type == 'kemiskinan-jawa-timur' or sync_type == 'kemiskinan':
@@ -341,6 +363,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Kemiskinan Jawa Timur: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # Kependudukan sync
@@ -357,6 +380,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Kependudukan: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # PDRB Pengeluaran sync
@@ -375,6 +399,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync PDRB Pengeluaran: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # PDRB Lapangan Usaha sync
@@ -393,6 +418,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync PDRB Lapangan Usaha: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         # Inflasi sync
@@ -416,6 +442,7 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.ERROR(f'   [ERROR] Error sync Inflasi: {str(e)}')
                 )
+            self.delay(3)
             self.stdout.write('')
         
         self.stdout.write(self.style.SUCCESS('[OK] Sinkronisasi selesai!'))
