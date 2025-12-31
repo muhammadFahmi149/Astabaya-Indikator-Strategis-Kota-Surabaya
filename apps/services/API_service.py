@@ -62,7 +62,20 @@ class IPMService:
                 'https://www.googleapis.com/auth/drive'
             ]
             # Autentikasi
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             # ID Google Sheet dari link
@@ -231,7 +244,19 @@ class HotelOccupancyCombinedService:
                 'https://www.googleapis.com/auth/drive'
             ]
             # Autentikasi
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             # ID Google Sheet dari link (sama seperti HumanDevelopmentIndex)
@@ -392,7 +417,19 @@ class HotelOccupancyYearlyService:
                 'https://www.googleapis.com/auth/drive'
             ]
             # Autentikasi
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             # ID Google Sheet dari link (sama seperti HumanDevelopmentIndex)
@@ -544,7 +581,19 @@ class GiniRatioService:
                 'https://www.googleapis.com/auth/drive'
             ]
             # Autentikasi
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             # ID Google Sheet dari link
@@ -1159,7 +1208,19 @@ class IPM_UHH_SPService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -1316,7 +1377,19 @@ class IPM_HLSService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -1473,7 +1546,19 @@ class IPM_RLSService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -1630,7 +1715,19 @@ class IPM_PengeluaranPerKapitaService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -1790,7 +1887,19 @@ class IPM_IndeksKesehatanService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -1947,7 +2056,19 @@ class IPM_IndeksHidupLayakService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -2104,7 +2225,19 @@ class IPM_IndeksPendidikanService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -2472,7 +2605,19 @@ class KemiskinanJawaTimurService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -2646,7 +2791,19 @@ class KependudukanService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -2829,7 +2986,19 @@ class KetenagakerjaanTPTService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -2982,7 +3151,19 @@ class KetenagakerjaanTPAKService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
@@ -3215,7 +3396,19 @@ class PDRBPengeluaranService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
             
             # Buka sheet
@@ -4027,7 +4220,19 @@ class PDRBLapanganUsahaService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
             
             # Buka sheet
@@ -4908,7 +5113,19 @@ class InflasiService:
             'https://www.googleapis.com/auth/spreadsheets',
             'https://www.googleapis.com/auth/drive'
         ]
-        credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+        if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+        else:
+            print("[INFO] Using local credentials.json")
+            
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                "credentials.json", scope
+            )
         return gspread.authorize(credentials)
     
     @staticmethod
