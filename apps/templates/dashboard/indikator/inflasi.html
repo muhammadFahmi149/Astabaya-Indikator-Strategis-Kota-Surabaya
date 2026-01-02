@@ -2,11 +2,153 @@
 {% load static %}
 {% block dashboard_content %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js">
+  // --- Dropdown Management JS ---
+  document.addEventListener('click', function(event) {
+    const dropdowns = [
+      { toggleId: 'filterYearToggle', menuId: 'filterYearDropdown' },
+      { toggleId: 'filterKomoditasTahunInput', menuId: 'filterKomoditasTahunDropdown' },
+      { toggleId: 'filterKomoditasInput', menuId: 'filterKomoditasDropdown' }
+    ];
+
+    const clickedEl = event.target;
+    
+    // Check if clicked on a toggle
+    let activeToggle = null;
+    dropdowns.forEach(d => {
+      const toggle = document.getElementById(d.toggleId);
+      if (toggle && toggle.contains(clickedEl)) {
+        activeToggle = d;
+      }
+    });
+
+    if (activeToggle) {
+      // Close all other dropdowns
+      dropdowns.forEach(d => {
+        if (d.toggleId !== activeToggle.toggleId) {
+          const menu = document.getElementById(d.menuId);
+          if (menu) menu.style.display = 'none';
+        }
+      });
+    } else {
+      // If clicked outside, close all if not clicking inside a menu
+      dropdowns.forEach(d => {
+        const menu = document.getElementById(d.menuId);
+        if (menu && !menu.contains(clickedEl)) {
+          // Special case for filterYear which doesn't use the body-append logic
+          if (d.toggleId === 'filterYearToggle') {
+            menu.style.display = 'none';
+          }
+        }
+      });
+    }
+  }, true); // Use capture phase to run before other listeners
+  // --- End Dropdown Management JS ---
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <div class="container py-4">
   <h3 class="font-weight-bold mb-4">Inflasi</h3>
+
+  <style>
+  /* --- Stacking Context Fixes --- */
+  .filter-layer {
+    position: relative;
+    z-index: 500 !important;
+  }
+  .content-layer {
+    position: relative;
+    z-index: 1 !important;
+  }
+  /* Ensure parents don't clip dropdowns */
+  .dashboard-card, .row, .container, .col-md-12, .col-md-6, .col-md-3 {
+    overflow: visible !important;
+  }
+  /* Navbar/Header should be 1000 */
+  .navbar, .header, header, [style*="position: sticky"], [style*="position: fixed"] {
+    z-index: 1000 !important;
+  }
+  /* Dropdown menus should be 900 to be above content but below navbar */
+  .dropdown-menu, #filterYearDropdown, #filterKomoditasTahunDropdown, #filterKomoditasDropdown {
+    z-index: 900 !important;
+  }
+  /* --- End Stacking Context Fixes --- */
+
+  /* Responsive adjustments for mobile only - Desktop tetap sama */
+  @media (max-width: 767.98px) {
+    /* Force row to flex wrap */
+    .row.mb-4 {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 0 !important;
+    }
+    
+    /* Untuk mobile: 2 kolom untuk card pertama dan kedua */
+    .row.mb-4 > div.col-12.col-md-4:nth-child(1),
+    .row.mb-4 > div.col-12.col-md-4:nth-child(2) {
+      flex: 0 0 50% !important;
+      max-width: 50% !important;
+      min-width: unset !important;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      margin-bottom: 8px !important;
+    }
+    
+    /* Card ketiga full width di bawah */
+    .row.mb-4 > div.col-12.col-md-4:nth-child(3) {
+      flex: 0 0 50% !important;
+      max-width: 50% !important;
+      min-width: unset !important;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      margin-top: 0 !important;
+      margin-bottom: 8px !important;
+    }
+    
+    .row.mb-4 .summary-card {
+      padding: 12px !important;
+      min-height: auto !important;
+      height: auto !important;
+      padding-bottom: 10px !important;
+    }
+    
+    .row.mb-4 .summary-card h6 {
+      font-size: 11px !important;
+      margin-bottom: 6px !important;
+    }
+    
+    .row.mb-4 .summary-card h3 {
+      font-size: 20px !important;
+      margin-bottom: 4px !important;
+      line-height: 1.1 !important;
+    }
+    
+    .row.mb-4 .summary-card small {
+      font-size: 10px !important;
+      margin-top: 4px !important;
+      margin-bottom: 0 !important;
+      line-height: 1.2 !important;
+    }
+    
+    .row.mb-4 .summary-card div[style*="display: flex"] {
+      margin-top: 4px !important;
+      gap: 4px !important;
+    }
+    
+    .row.mb-4 .summary-card div[style*="display: flex"] span {
+      font-size: 10px !important;
+    }
+    
+    .row.mb-4 .summary-card div[style*="display: flex"] span[style*="font-size: 11px"] {
+      font-size: 9px !important;
+    }
+    
+    .row.mb-4 .summary-card > div[style*="position: relative"] > *:last-child {
+      margin-bottom: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+  </style>
   
   <!-- Summary Cards -->
   <div class="row mb-4" style="display: flex; flex-wrap: wrap; gap: 15px;">
@@ -112,7 +254,7 @@
     </div>
   </div>
 
-  <!-- Filter Tahun untuk Grafik -->
+  <div class="filter-layer"><!-- Filter Tahun untuk Grafik -->
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="dashboard-card" style="background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 20px; position: relative; z-index: 1;">
@@ -123,12 +265,12 @@
             </label>
           </div>
           <div class="col-md-12">
-            <div class="custom-dropdown" style="position: relative; max-width: 300px; z-index: 9999;">
+            <div class="custom-dropdown" style="position: relative; max-width: 300px; z-index: 500;">
               <div class="dropdown-toggle" id="filterYearToggle" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; background-color: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1;">
                 <span id="filterYearDisplay">Default</span>
-                <i class="fas fa-chevron-down" style="font-size: 12px; color: #666;"></i>
+                
               </div>
-              <div class="dropdown-menu" id="filterYearDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 9999; max-height: 192px; overflow-y: auto; overflow-x: hidden;">
+              <div class="dropdown-menu" id="filterYearDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 900; max-height: 192px; overflow-y: auto; overflow-x: hidden;">
                 <div class="dropdown-item" data-value="{{ latest_year }}" style="padding: 8px 12px; cursor: pointer; background-color: #f0f0f0;" data-selected="true">Default</div>
                 {% for year in all_years|slice:":5" %}
                   {% if year != latest_year %}
@@ -220,13 +362,13 @@
             <label class="form-label" style="font-weight: 600; margin-bottom: 8px;">
               <span class="badge bg-primary me-2">1</span>Tahun
             </label>
-            <div id="filterKomoditasTahunWrapper" style="position: relative; overflow: visible; z-index: 9999;">
+            <div id="filterKomoditasTahunWrapper" style="position: relative; overflow: visible; z-index: 900;">
               <div id="filterKomoditasTahunInput" class="form-control" style="padding: 6px 12px; border-radius: 6px; min-height: 40px; height: auto; font-size: 14px; cursor: pointer; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; background-color: #fff;">
                 <span id="filterKomoditasTahunPlaceholder" style="color: #6c757d;">Pilih Tahun</span>
                 <span id="filterKomoditasTahunSelected" style="display: none; color: #333; flex: 1;"></span>
                 <i class="fas fa-chevron-down" style="color: #6c757d; margin-left: auto; flex-shrink: 0;"></i>
               </div>
-              <div id="filterKomoditasTahunDropdown" style="display: none; position: fixed; background: white; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 0; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <div id="filterKomoditasTahunDropdown" style="display: none; position: absolute; background: white; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 4px; top: 100%; left: 0; right: 0; max-height: 300px; overflow-y: auto; z-index: 900; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 {% for year in komoditas_years %}
                 <div class="filter-option-tahun" data-value="{{ year }}" style="padding: 10px 12px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f0f0f0;">
                   {{ year }}
@@ -241,7 +383,7 @@
             <label class="form-label" style="font-weight: 600; margin-bottom: 8px;">
               <span class="badge bg-success me-2">2</span>Komoditas
             </label>
-            <div id="filterKomoditasWrapper" style="position: relative; overflow: visible; z-index: 9999;">
+            <div id="filterKomoditasWrapper" style="position: relative; overflow: visible; z-index: 900;">
               <div id="filterKomoditasInput" class="form-control" style="padding: 6px 12px; border-radius: 6px; min-height: 40px; height: auto; font-size: 14px; cursor: text; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; background-color: #fff;">
                 <span id="filterKomoditasPlaceholder" style="color: #6c757d; display: inline;">Cari komoditas...</span>
                 <div id="filterKomoditasTags" style="display: none; flex-wrap: wrap; gap: 6px; flex: 1; align-items: center;"></div>
@@ -249,7 +391,7 @@
                 <button type="button" id="filterKomoditasClear" style="display: none; background: none; border: none; color: #6c757d; cursor: pointer; padding: 4px 8px; font-size: 16px; line-height: 1;">×</button>
                 <i class="fas fa-chevron-down" id="filterKomoditasChevron" style="color: #6c757d; margin-left: auto; flex-shrink: 0; cursor: pointer; padding: 4px;"></i>
               </div>
-              <div id="filterKomoditasDropdown" style="display: none; position: fixed; background: white; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 4px; max-height: 400px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <div id="filterKomoditasDropdown" style="display: none; position: absolute; background: white; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 4px; top: 100%; left: 0; right: 0; max-height: 400px; overflow-y: auto; z-index: 900; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <!-- Will be populated by JavaScript -->
               </div>
             </div>
@@ -277,7 +419,8 @@
     </div>
   </div>
 
-  <!-- Grafik Inflasi Per Komoditas -->
+  </div><!-- end filter-layer -->
+<div class="content-layer"><!-- Grafik Inflasi Per Komoditas -->
   <div class="row mb-4" id="komoditasChartSection" style="display: none;">
     <div class="col-md-12">
       <div class="dashboard-card" style="background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 25px; position: relative;">
@@ -345,6 +488,7 @@
     </div>
   </div>
 </div>
+</div><!-- end content-layer -->
 
 <script>
 // Month mapping for display
@@ -399,12 +543,27 @@ document.addEventListener('DOMContentLoaded', function() {
   setupKomoditasFilter();
   loadKomoditasExplanation();
 
-  // Handle window resize for all charts
-  window.addEventListener('resize', function() {
+  // Debounce function for resize events
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  // Handle window resize for all charts with debounce
+  const debouncedResize = debounce(function() {
     if (mtoMChart) mtoMChart.resize();
     if (yonYChart) yonYChart.resize();
     if (perKomoditasChart) perKomoditasChart.resize();
-  });
+  }, 250);
+
+  window.addEventListener('resize', debouncedResize);
 });
 
 // Load inflasi general data
@@ -631,8 +790,8 @@ function renderMtoMChart() {
     },
     grid: {
       left: '3%',
-      right: '4%',
-      bottom: '3%',
+      right: '8%',
+      bottom: '15%',
       containLabel: true
     },
     xAxis: {
@@ -642,6 +801,7 @@ function renderMtoMChart() {
       axisLabel: {
         rotate: labels.length > 6 ? 45 : 0,
         interval: labels.length <= 12 ? 0 : Math.max(0, Math.floor(labels.length / 12)),
+        margin: 8,
         formatter: function(value) {
           // Show only month abbreviation since we always filter by year
           return value.split(' ')[0]; // Only month
@@ -681,7 +841,6 @@ function renderMtoMChart() {
   };
 
   mtoMChart.setOption(option, true); // Use notMerge=true to replace existing option
-  updateChartData(); // Update data for export
   
   // Resize chart to ensure proper rendering
   setTimeout(() => {
@@ -739,8 +898,8 @@ function renderYonYChart() {
     },
     grid: {
       left: '3%',
-      right: '4%',
-      bottom: '3%',
+      right: '8%',
+      bottom: '15%',
       containLabel: true
     },
     xAxis: {
@@ -750,6 +909,7 @@ function renderYonYChart() {
       axisLabel: {
         rotate: labels.length > 6 ? 45 : 0,
         interval: labels.length <= 12 ? 0 : Math.max(0, Math.floor(labels.length / 12)),
+        margin: 8,
         formatter: function(value) {
           // Show only month abbreviation since we always filter by year
           return value.split(' ')[0]; // Only month
@@ -853,9 +1013,6 @@ function setupKomoditasFilter() {
       
       // Close dropdown
       dropdown.style.display = 'none';
-      if (dropdown.parentNode !== document.body && wrapper) {
-        wrapper.appendChild(dropdown);
-      }
       
       // Call onSelect callback
       if (onSelect) {
@@ -866,7 +1023,7 @@ function setupKomoditasFilter() {
     dropdown.addEventListener('click', dropdown._optionClickHandler);
   }
 
-  // Setup toggle for tahun dropdown
+  // Setup toggle for tahun dropdown - FIXED VERSION
   function initTahunDropdownToggle() {
     filterTahunInput.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -875,34 +1032,25 @@ function setupKomoditasFilter() {
       const isVisible = filterTahunDropdown.style.display === 'block';
       
       if (!isVisible) {
-        const inputRect = filterTahunInput.getBoundingClientRect();
-        
-        if (filterTahunDropdown.parentNode !== document.body) {
-          document.body.appendChild(filterTahunDropdown);
-        }
-        
-        const top = inputRect.bottom + 4;
-        const left = inputRect.left;
-        const width = inputRect.width;
-        const viewportWidth = window.innerWidth;
-        const dropdownMaxWidth = viewportWidth - left - 20;
-        
-        filterTahunDropdown.style.position = 'fixed';
-        filterTahunDropdown.style.top = top + 'px';
-        filterTahunDropdown.style.left = left + 'px';
-        filterTahunDropdown.style.width = Math.min(width, dropdownMaxWidth) + 'px';
-        filterTahunDropdown.style.display = 'block';
-        filterTahunDropdown.style.zIndex = '1000';
-      } else {
-        filterTahunDropdown.style.display = 'none';
-        if (filterTahunDropdown.parentNode === document.body && filterTahunWrapper) {
+        // Kembalikan dropdown ke parent wrapper jika sebelumnya dipindahkan
+        if (filterTahunDropdown.parentNode !== filterTahunWrapper) {
           filterTahunWrapper.appendChild(filterTahunDropdown);
         }
+        
+        filterTahunDropdown.style.position = 'absolute';
+        filterTahunDropdown.style.top = '100%';
+        filterTahunDropdown.style.left = '0';
+        filterTahunDropdown.style.right = '0';
+        filterTahunDropdown.style.marginTop = '4px';
+        filterTahunDropdown.style.display = 'block';
+        filterTahunDropdown.style.zIndex = '900';
+      } else {
+        filterTahunDropdown.style.display = 'none';
       }
     });
   }
 
-  // Setup toggle for komoditas dropdown
+  // Setup toggle for komoditas dropdown - FIXED VERSION
   function initKomoditasDropdownToggle() {
     filterKomoditasInput.addEventListener('click', function(e) {
       // Don't toggle if clicking on search input or tags
@@ -932,26 +1080,22 @@ function setupKomoditasFilter() {
     });
   }
 
-  // Show komoditas dropdown
+  // Show komoditas dropdown - FIXED VERSION
   function showKomoditasDropdown() {
-    const inputRect = filterKomoditasInput.getBoundingClientRect();
-    
-    if (filterKomoditasDropdown.parentNode !== document.body) {
-      document.body.appendChild(filterKomoditasDropdown);
+    // Kembalikan dropdown ke parent wrapper jika sebelumnya dipindahkan
+    if (filterKomoditasDropdown.parentNode !== filterKomoditasWrapper) {
+      filterKomoditasWrapper.appendChild(filterKomoditasDropdown);
     }
     
-    const top = inputRect.bottom + 4;
-    const left = inputRect.left;
-    const width = inputRect.width;
-    const viewportWidth = window.innerWidth;
-    const dropdownMaxWidth = viewportWidth - left - 20;
-    
-    filterKomoditasDropdown.style.position = 'fixed';
-    filterKomoditasDropdown.style.top = top + 'px';
-    filterKomoditasDropdown.style.left = left + 'px';
-    filterKomoditasDropdown.style.width = Math.min(width, dropdownMaxWidth) + 'px';
+    filterKomoditasDropdown.style.position = 'absolute';
+    filterKomoditasDropdown.style.top = '100%';
+    filterKomoditasDropdown.style.left = '0';
+    filterKomoditasDropdown.style.right = '0';
+    filterKomoditasDropdown.style.marginTop = '4px';
     filterKomoditasDropdown.style.display = 'block';
-    filterKomoditasDropdown.style.zIndex = '1000';
+    filterKomoditasDropdown.style.zIndex = '900';
+    filterKomoditasDropdown.style.maxHeight = '300px';
+    filterKomoditasDropdown.style.overflowY = 'auto';
     
     // Show search input when dropdown opens
     showSearchInput();
@@ -963,15 +1107,12 @@ function setupKomoditasFilter() {
     }
   }
 
-  // Hide komoditas dropdown
+  // Hide komoditas dropdown - FIXED VERSION
   function hideKomoditasDropdown() {
     filterKomoditasDropdown.style.display = 'none';
-    if (filterKomoditasDropdown.parentNode === document.body && filterKomoditasWrapper) {
-      filterKomoditasWrapper.appendChild(filterKomoditasDropdown);
-    }
   }
 
-  // Setup click outside handler for tahun dropdown
+  // Setup click outside handler for tahun dropdown - FIXED VERSION
   function setupTahunClickOutside() {
     document.addEventListener('click', function(e) {
       if (filterTahunDropdown && filterTahunWrapper && filterTahunDropdown.style.display === 'block') {
@@ -980,15 +1121,12 @@ function setupKomoditasFilter() {
         
         if (!clickedInsideWrapper && !clickedInsideDropdown) {
           filterTahunDropdown.style.display = 'none';
-          if (filterTahunDropdown.parentNode === document.body && filterTahunWrapper) {
-            filterTahunWrapper.appendChild(filterTahunDropdown);
-          }
         }
       }
     });
   }
 
-  // Setup click outside handler for komoditas dropdown
+  // Setup click outside handler for komoditas dropdown - FIXED VERSION
   function setupKomoditasClickOutside() {
     document.addEventListener('click', function(e) {
       if (filterKomoditasDropdown && filterKomoditasWrapper && filterKomoditasDropdown.style.display === 'block') {
@@ -1394,6 +1532,14 @@ function setupKomoditasFilter() {
     
     // Reload all komoditas (all years)
     loadAllKomoditas();
+    
+    // Pastikan dropdown tetap di wrapper
+    if (filterTahunDropdown.parentNode !== filterTahunWrapper) {
+      filterTahunWrapper.appendChild(filterTahunDropdown);
+    }
+    if (filterKomoditasDropdown.parentNode !== filterKomoditasWrapper) {
+      filterKomoditasWrapper.appendChild(filterKomoditasDropdown);
+    }
   });
 
   function showSelectedKomoditasInfo() {
@@ -2212,6 +2358,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .dashboard-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+  overflow: hidden;
 }
 
 /* Ensure chart containers don't overlap dropdown */
@@ -2219,6 +2366,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .dashboard-card #inflasiYonYChart {
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+  width: 100% !important;
 }
 
 .dashboard-card:hover {
@@ -2277,7 +2426,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Custom Dropdown Styles */
 .custom-dropdown {
   position: relative;
-  z-index: 9999;
+  z-index: 500;
 }
 
 .custom-dropdown .dropdown-toggle:hover {
@@ -2289,7 +2438,7 @@ document.addEventListener('DOMContentLoaded', function() {
   overflow-y: auto;
   overflow-x: hidden;
   position: absolute !important;
-  z-index: 9999 !important;
+  z-index: 500 !important;
 }
 
 .custom-dropdown .dropdown-item {
@@ -2299,7 +2448,7 @@ document.addEventListener('DOMContentLoaded', function() {
   align-items: center;
   position: relative;
   transition: background-color 0.2s ease;
-  z-index: 1;
+  z-index: 500;
 }
 
 .custom-dropdown .dropdown-item:first-child {
@@ -2345,20 +2494,22 @@ document.addEventListener('DOMContentLoaded', function() {
   overflow: visible !important;
 }
 
-/* Filter wrapper styles for Inflasi Komoditas */
+/* Filter wrapper styles for Inflasi Komoditas - FIXED VERSION */
 #filterKomoditasTahunWrapper,
 #filterKomoditasWrapper {
-  overflow: visible !important;
   position: relative !important;
-  z-index: 9999 !important;
+  overflow: visible !important;
 }
 
-/* Dropdown styles */
+/* Dropdown styles - FIXED VERSION */
 #filterKomoditasTahunDropdown,
 #filterKomoditasDropdown {
   z-index: 1000 !important;
-  position: fixed !important;
+  position: absolute !important;
   display: none !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-width: 100% !important;
 }
 
 #filterKomoditasTahunDropdown[style*="display: block"],
