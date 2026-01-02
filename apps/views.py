@@ -2399,8 +2399,10 @@ def publications(request):
     if selected_year:
         try:
             year_int = int(selected_year)
-            # Filter only for years 2020-2025
-            if 2020 <= year_int <= 2025:
+            # Filter for years 1984 to current year
+            from datetime import datetime
+            current_year = datetime.now().year
+            if 1984 <= year_int <= current_year:
                 publications_list = publications_list.filter(date__year=year_int)
         except ValueError:
             # Invalid year, ignore filter
@@ -2409,19 +2411,21 @@ def publications(request):
     # Order by date
     publications_list = publications_list.order_by('-date')
     
-    # Get available years from database (only 2020-2025)
+    # Get available years from database (1984 to current year)
+    from datetime import datetime
+    current_year = datetime.now().year
     available_years = Publication.objects.exclude(
         date__isnull=True
     ).annotate(
         year=ExtractYear('date')
     ).values_list('year', flat=True).distinct()
     
-    # Filter only years 2020-2025
-    available_years = sorted([y for y in available_years if 2020 <= y <= 2025], reverse=True)
+    # Filter years 1984 to current year and sort descending
+    available_years = sorted([y for y in available_years if 1984 <= y <= current_year], reverse=True)
     
-    # If no years found, set default years
+    # If no years found, generate default years from 1984 to current year
     if not available_years:
-        available_years = [2025, 2024, 2023, 2022, 2021, 2020]
+        available_years = list(range(current_year, 1983, -1))
     
     # Get total count
     total_count = Publication.objects.count()
