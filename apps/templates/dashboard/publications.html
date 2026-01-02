@@ -39,7 +39,7 @@
           <button class="btn btn-sm btn-light bg-white dropdown-toggle shadow-sm" type="button" id="yearFilterButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="bi bi-calendar"></i> <span id="yearFilterText">{% if selected_year %}{{ selected_year }}{% else %}Semua Tahun{% endif %}</span>
           </button>
-          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="yearFilterButton" id="yearFilterMenu">
+          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="yearFilterButton" id="yearFilterMenu" style="max-height: calc(5 * 2.5rem); overflow-y: auto;">
             <a class="dropdown-item {% if not selected_year %}active{% endif %}" href="#" data-year="">Semua Tahun</a>
             {% for year in available_years %}
             <a class="dropdown-item {% if selected_year == year|stringformat:"s" %}active{% endif %}" href="#" data-year="{{ year }}">{{ year }}</a>
@@ -56,62 +56,76 @@
     <div class="col-12 mb-4 publication-item" data-year="{{ publication.date|date:'Y' }}">
       <div class="card hover-card">
         <div class="card-body">
-          <!-- Mobile Layout (Compact) -->
-          <div class="row g-1 align-items-center d-md-none">
-            <!-- Cover Image -->
-            <div class="col-auto">
-              <img
-                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 200'%3E%3Crect fill='%23f0f0f0' width='150' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='14' font-family='Arial'%3ELoading...%3C/text%3E%3C/svg%3E"
-                data-src="{{ publication.image }}"
-                alt="{{ publication.title }}"
-                class="rounded shadow-sm lazy-load publication-thumbnail-mobile"
-                style="width: 60px; height: 85px; object-fit: cover; cursor: pointer"
-                loading="lazy"
-                data-pub-id="{{ publication.pub_id|escapejs }}"
-                data-index="{{ forloop.counter0 }}"
-                onclick="showModal(this.dataset.pubId, this.dataset.index)"
-              />
-            </div>
-
-            <!-- Publication Info -->
-            <div class="col">
-              <h6 class="card-title mb-0 fw-bold" style="font-size: 0.85rem; line-height: 1.2; margin-bottom: 0.25rem !important">{{ publication.title }}</h6>
-
-              <div class="mb-0" style="margin-bottom: 0.25rem !important">
-                {% if publication.date %}
-                <span class="badge bg-info me-1" style="font-size: 0.65rem; padding: 0.2rem 0.4rem; line-height: 1.2"> <i class="bi bi-calendar" style="font-size: 0.7rem"></i> {{ publication.date|date:"d M Y" }} </span>
-                {% endif %} {% if publication.size %}
-                <span class="badge bg-secondary" style="font-size: 0.65rem; padding: 0.2rem 0.4rem; line-height: 1.2"> <i class="bi bi-file-earmark-pdf" style="font-size: 0.7rem"></i> {{ publication.size }} </span>
-                {% endif %}
+          <!-- Mobile Layout (Book-like) -->
+          <div class="d-md-none">
+            <div class="row g-3 mb-3">
+              <!-- Cover Image (Left) -->
+              <div class="col-auto">
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 200'%3E%3Crect fill='%23f0f0f0' width='150' height='200'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='14' font-family='Arial'%3ELoading...%3C/text%3E%3C/svg%3E"
+                  data-src="{{ publication.image }}"
+                  alt="{{ publication.title }}"
+                  class="rounded shadow-sm lazy-load publication-thumbnail-mobile"
+                  style="width: 100px; height: 140px; object-fit: cover; cursor: pointer"
+                  loading="lazy"
+                  data-pub-id="{{ publication.pub_id|escapejs }}"
+                  data-index="{{ forloop.counter0 }}"
+                  onclick="showModal(this.dataset.pubId, this.dataset.index)"
+                />
               </div>
 
-              <p class="card-text text-muted mb-0" style="font-size: 0.75rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.25rem">
-                {{ publication.abstract|truncatewords:20 }}
-              </p>
+              <!-- Publication Info (Right) -->
+              <div class="col">
+                <h6 class="card-title mb-2 fw-bold" style="font-size: 0.9rem; line-height: 1.3">{{ publication.title }}</h6>
+                
+                <div class="mb-2">
+                  <small class="text-muted d-flex align-items-center mb-1" style="font-size: 0.75rem">
+                    <i class="bi bi-people me-1" style="font-size: 0.8rem"></i>
+                    <span>BPS Kota Surabaya</span>
+                  </small>
+                </div>
+
+                <p class="card-text text-muted mb-2" style="font-size: 0.8rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden">
+                  {{ publication.abstract|truncatewords:25 }}
+                </p>
+
+                <div class="mb-2">
+                  <small class="text-muted d-flex flex-wrap align-items-center gap-2" style="font-size: 0.7rem">
+                    <span>PDF</span>
+                    <span>·</span>
+                    <span>bahasa Indonesia</span>
+                    {% if publication.date %}
+                    <span>·</span>
+                    <span>{{ publication.date|date:"Y" }}</span>
+                    {% endif %}
+                    {% if publication.size %}
+                    <span>·</span>
+                    <span>{{ publication.size }}</span>
+                    {% endif %}
+                  </small>
+                </div>
+              </div>
             </div>
 
-            <!-- Actions -->
-            <div class="col-auto">
-              <div class="d-flex flex-column gap-1">
-                <button class="btn btn-outline-primary btn-sm" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; white-space: nowrap; line-height: 1.2" data-pub-id="{{ publication.pub_id|escapejs }}" data-index="{{ forloop.counter0 }}" onclick="showModal(this.dataset.pubId, this.dataset.index)">
-                  <i class="bi bi-eye" style="font-size: 0.7rem"></i> Detail
+            <!-- Action Buttons (Bottom) -->
+            <div class="row g-2 publication-action-buttons">
+              <div class="col-4">
+                <button class="btn btn-light w-100 publication-action-btn d-flex flex-column align-items-center justify-content-center" data-pub-id="{{ publication.pub_id|escapejs }}" data-index="{{ forloop.counter0 }}" onclick="showModal(this.dataset.pubId, this.dataset.index)">
+                  <i class="bi bi-book publication-action-icon"></i>
+                  <span class="publication-action-text">Baca</span>
                 </button>
-                <a href="{% url 'download-publication' publication.pub_id %}" target="_blank" class="btn btn-primary btn-sm download-publication-btn" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; white-space: nowrap; line-height: 1.2" data-pub-id="{{ publication.pub_id }}" data-pub-title="{{ publication.title|escapejs }}">
-                  <i class="bi bi-download" style="font-size: 0.7rem"></i> Download PDF
+              </div>
+              <div class="col-4">
+                <a href="{% url 'download-publication' publication.pub_id %}" target="_blank" class="btn btn-light w-100 publication-action-btn download-publication-btn d-flex flex-column align-items-center justify-content-center" style="text-decoration: none" data-pub-id="{{ publication.pub_id }}" data-pub-title="{{ publication.title|escapejs }}">
+                  <i class="bi bi-download publication-action-icon"></i>
+                  <span class="publication-action-text">Unduhan</span>
                 </a>
-                {% if user.is_authenticated %}
-                <button
-                  class="btn btn-outline-secondary btn-sm bookmark-btn {% if publication.bookmark_id %}bookmarked{% endif %}"
-                  data-content-type="publication"
-                  data-object-id="{{ publication.pk }}"
-                  data-bookmark-id="{{ publication.bookmark_id|default:'' }}"
-                  onclick="event.stopPropagation(); toggleBookmark(this);"
-                  type="button"
-                >
-                  <i class="bi {% if publication.bookmark_id %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
-                  <span class="d-none d-sm-inline"> {% if publication.bookmark_id %}Tersimpan{% else %}Bookmark{% endif %} </span>
+              </div>
+              <div class="col-4">
+                <button class="btn btn-light w-100 publication-action-btn share-publication-btn d-flex flex-column align-items-center justify-content-center" data-pub-title="{{ publication.title|escapejs }}" data-pub-url="{% url 'publications' %}">
+                  <i class="bi bi-share publication-action-icon"></i>
+                  <span class="publication-action-text">Bagikan</span>
                 </button>
-                {% endif %}
               </div>
             </div>
           </div>
@@ -153,19 +167,6 @@
               <div class="d-flex flex-column gap-2">
                 <button class="btn btn-outline-primary btn-sm" data-pub-id="{{ publication.pub_id|escapejs }}" data-index="{{ forloop.counter0 }}" onclick="showModal(this.dataset.pubId, this.dataset.index)"><i class="bi bi-eye"></i> Detail</button>
                 <a href="{% url 'download-publication' publication.pub_id %}" target="_blank" class="btn btn-primary btn-sm download-publication-btn" data-pub-id="{{ publication.pub_id }}" data-pub-title="{{ publication.title|escapejs }}"> <i class="bi bi-download"></i> Download PDF </a>
-                {% if user.is_authenticated %}
-                <button
-                  class="btn btn-outline-secondary btn-sm bookmark-btn {% if publication.bookmark_id %}bookmarked{% endif %}"
-                  data-content-type="publication"
-                  data-object-id="{{ publication.pk }}"
-                  data-bookmark-id="{{ publication.bookmark_id|default:'' }}"
-                  onclick="event.stopPropagation(); toggleBookmark(this);"
-                  type="button"
-                >
-                  <i class="bi {% if publication.bookmark_id %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
-                  <span class="d-none d-sm-inline"> {% if publication.bookmark_id %}Tersimpan{% else %}Bookmark{% endif %} </span>
-                </button>
-                {% endif %}
               </div>
             </div>
           </div>
@@ -215,7 +216,7 @@
 
 <!-- Modal for Publication Detail -->
 <div class="modal fade" id="publicationModal" tabindex="-1">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalTitle"></h5>
@@ -223,10 +224,10 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-md-3 text-center mb-3">
-            <img id="modalImage" src="" alt="" class="img-fluid rounded shadow" style="max-height: 320px; width: auto;" />
+          <div class="col-md-4 col-lg-4 text-center mb-3">
+            <img id="modalImage" src="" alt="" class="img-fluid rounded shadow publication-modal-image" />
           </div>
-          <div class="col-md-9">
+          <div class="col-md-8 col-lg-8">
             <div class="mb-2">
               <strong>Tanggal Publikasi:</strong>
               <span id="modalDate"></span>
@@ -248,21 +249,26 @@
         </div>
       </div>
       <div class="modal-footer">
-        {% if user.is_authenticated %}
-        <button
-          id="modalBookmarkBtn"
-          class="btn btn-outline-secondary btn-sm bookmark-btn"
-          data-content-type="publication"
-          data-object-id=""
-          data-bookmark-id=""
-          onclick="toggleBookmark(this)"
-        >
-          <i class="bi bi-bookmark"></i>
-          <span class="d-none d-sm-inline">Bookmark</span>
-        </button>
-        {% endif %}
-        <a id="modalDownload" href="" target="_blank" class="btn btn-primary download-publication-btn" data-pub-id="" data-pub-title=""> <i class="bi bi-download"></i> Unduh PDF </a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="d-flex w-100 gap-2 flex-wrap modal-footer-buttons">
+          {% if user.is_authenticated %}
+          <button
+            id="modalBookmarkBtn"
+            class="btn btn-outline-secondary btn-sm bookmark-btn modal-footer-btn-left"
+            data-content-type="publication"
+            data-object-id=""
+            data-bookmark-id=""
+            onclick="toggleBookmark(this)"
+          >
+            <i class="bi bi-bookmark"></i>
+            <span class="modal-btn-text">Bookmark</span>
+          </button>
+          {% endif %}
+          <button type="button" class="btn btn-outline-secondary btn-sm share-publication-modal-btn modal-footer-btn-left" data-pub-title="" data-pub-url="{% url 'publications' %}">
+            <i class="bi bi-share"></i>
+            <span class="modal-btn-text">Bagikan</span>
+          </button>
+          <a id="modalDownload" href="" target="_blank" class="btn btn-primary download-publication-btn modal-footer-btn-right" data-pub-id="" data-pub-title=""> <i class="bi bi-download"></i> Unduh PDF </a>
+        </div>
       </div>
     </div>
   </div>
@@ -308,8 +314,8 @@
   }
 
   #yearFilterMenu {
-    max-height: 300px;
-    overflow-y: auto;
+    max-height: calc(5 * 2.5rem) !important;
+    overflow-y: auto !important;
     overflow-x: hidden;
     border-radius: 1rem;
     border: 1px solid #dee2e6;
@@ -366,9 +372,9 @@
     border-bottom-right-radius: 0.5rem;
   }
 
-  /* Modal Publication Detail - Smaller size with proper spacing */
+  /* Modal Publication Detail - Desktop/Normal Screen */
   #publicationModal .modal-dialog {
-    max-width: 480px;
+    max-width: 900px;
     margin: 1.75rem auto;
     display: flex;
     align-items: center;
@@ -376,31 +382,33 @@
   }
 
   #publicationModal .modal-content {
-    max-height: 80vh;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     width: 100%;
+    overflow: hidden;
   }
 
   #publicationModal .modal-header {
     flex-shrink: 0;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid #dee2e6;
   }
 
   #publicationModal .modal-header .modal-title {
-    font-size: 0.875rem;
+    font-size: 1.1rem;
     font-weight: 600;
   }
 
   #publicationModal .modal-body {
     flex: 1 1 auto;
-    overflow-y: visible;
+    overflow-y: visible !important;
     overflow-x: hidden;
-    padding: 0.75rem;
-    padding-bottom: 0.5rem;
+    padding: 1.5rem;
+    padding-bottom: 1.5rem;
     min-height: 0;
     max-height: none;
+    overflow: visible !important;
   }
 
   #publicationModal .modal-body .row {
@@ -408,66 +416,136 @@
     margin-right: 0;
   }
 
-  #publicationModal .modal-body .col-md-3 {
-    padding-right: 0.5rem;
+  #publicationModal .modal-body .col-md-4,
+  #publicationModal .modal-body .col-lg-4 {
+    padding-right: 1rem;
     padding-left: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
   }
 
-  #publicationModal .modal-body .col-md-9 {
-    padding-left: 0.75rem;
+  #publicationModal .modal-body .col-md-8,
+  #publicationModal .modal-body .col-lg-8 {
+    padding-left: 1.5rem;
     padding-right: 0;
   }
 
-  #publicationModal .modal-body .col-md-3 img {
+  /* Publication Modal Image - Larger size for desktop */
+  .publication-modal-image {
+    max-height: 500px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain;
+  }
+
+  #publicationModal .modal-body .col-md-4 img,
+  #publicationModal .modal-body .col-lg-4 img {
     margin-right: 0;
   }
 
   #publicationModal .modal-body .mb-2 {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
   }
 
   #publicationModal .modal-body strong {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     font-weight: 600;
   }
 
   #publicationModal .modal-footer {
     flex-shrink: 0;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1.5rem;
     border-top: 1px solid #dee2e6;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
     margin-top: 0;
+    position: relative;
+    z-index: 1;
+    background-color: #fff;
   }
 
   #publicationModal .modal-footer .btn {
-    font-size: 0.8125rem;
-    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Desktop: Bookmark and Share on left, Unduh on right */
+  #publicationModal .modal-footer-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #publicationModal .modal-footer-btn-left {
+    margin-right: auto;
+  }
+
+  #publicationModal .modal-footer-btn-right {
+    margin-left: auto;
+  }
+
+  #publicationModal .modal-btn-text {
+    margin-left: 0.5rem;
+  }
+
+  /* Mobile: Stack buttons vertically, Unduh at bottom */
+  @media (max-width: 767.98px) {
+    #publicationModal .modal-footer {
+      padding: 1rem;
+      flex-direction: column;
+    }
+
+    #publicationModal .modal-footer-buttons {
+      flex-direction: column !important;
+      width: 100%;
+      gap: 0.75rem !important;
+    }
+
+    #publicationModal .modal-footer-btn-left {
+      width: 100% !important;
+      margin-right: 0;
+      margin-left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #publicationModal .modal-footer-btn-right {
+      width: 100% !important;
+      margin-left: 0;
+      margin-top: 0.5rem;
+      order: 999;
+    }
+
+    #publicationModal .modal-btn-text {
+      display: inline !important;
+      margin-left: 0.5rem;
+    }
   }
 
   #publicationModal .abstract-container {
-    margin-bottom: 0;
-    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0;
   }
 
   #publicationModal .abstract-container strong {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 600;
   }
 
   #publicationModal #modalAbstract {
     word-wrap: break-word;
     white-space: normal;
-    line-height: 1.5;
-    font-size: 0.6875rem;
+    line-height: 1.6;
+    font-size: 0.875rem;
     margin-bottom: 0;
-    max-height: 200px;
-    overflow-y: auto;
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto !important;
+    overflow-x: hidden;
     padding-right: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   /* Custom scrollbar for abstract */
@@ -489,14 +567,19 @@
     background: #555;
   }
 
-  /* Responsive adjustments */
+  /* Responsive adjustments - Tablet and below */
   @media (max-width: 992px) {
     #publicationModal .modal-dialog {
-      max-width: 80%;
+      max-width: 85%;
     }
 
-    #publicationModal #modalImage {
-      max-height: 280px !important;
+    .publication-modal-image {
+      max-height: 350px !important;
+    }
+
+    #publicationModal .modal-body {
+      overflow: visible !important;
+      overflow-y: visible !important;
     }
 
     #publicationModal .modal-body {
@@ -517,41 +600,53 @@
 
   @media (max-width: 768px) {
     #publicationModal .modal-dialog {
-      max-width: 90%;
+      max-width: 95%;
       margin: 0.5rem auto;
     }
 
     #publicationModal .modal-header {
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem 1rem;
     }
 
     #publicationModal .modal-header .modal-title {
-      font-size: 0.8125rem;
+      font-size: 0.95rem;
     }
 
     #publicationModal .modal-body {
-      padding: 0.5rem;
-      padding-bottom: 0.5rem;
-      overflow-y: visible;
+      padding: 1rem;
+      padding-bottom: 1rem;
+      overflow-y: visible !important;
+      overflow: visible !important;
       max-height: none;
     }
 
-    #publicationModal .modal-body .col-md-3 {
-      padding-right: 0.5rem;
-      padding-left: 0;
+    #publicationModal .abstract-container {
+      margin-bottom: 0.75rem;
     }
 
-    #publicationModal .modal-body .col-md-9 {
-      padding-left: 0.5rem;
+    #publicationModal .modal-body .col-md-4,
+    #publicationModal .modal-body .col-lg-4 {
+      padding-right: 0;
+      padding-left: 0;
+      margin-bottom: 1rem;
+    }
+
+    #publicationModal .modal-body .col-md-8,
+    #publicationModal .modal-body .col-lg-8 {
+      padding-left: 0;
       padding-right: 0;
     }
 
+    .publication-modal-image {
+      max-height: 300px !important;
+    }
+
     #publicationModal .modal-body .mb-2 {
-      font-size: 0.6875rem;
+      font-size: 0.8rem;
     }
 
     #publicationModal .modal-body strong {
-      font-size: 0.6875rem;
+      font-size: 0.8rem;
     }
 
     #publicationModal .abstract-container {
@@ -560,37 +655,38 @@
     }
 
     #publicationModal .abstract-container strong {
-      font-size: 0.6875rem;
+      font-size: 0.85rem;
     }
 
     #publicationModal #modalAbstract {
-      font-size: 0.625rem;
-      line-height: 1.45;
-      max-height: 150px;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      max-height: 200px;
     }
 
     #publicationModal .modal-footer {
       flex-direction: column;
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem 1rem;
       margin-top: 0;
     }
 
     #publicationModal .modal-footer .btn {
       width: 100%;
       margin: 0;
-      font-size: 0.6875rem;
-    }
-
-    #publicationModal #modalImage {
-      max-height: 240px !important;
+      font-size: 0.8rem;
     }
   }
 
   @media (max-width: 576px) {
     #publicationModal .modal-body {
-      padding-bottom: 0.5rem;
-      overflow-y: visible;
+      padding-bottom: 1rem;
+      overflow-y: visible !important;
+      overflow: visible !important;
       max-height: none;
+    }
+
+    #publicationModal .abstract-container {
+      margin-bottom: 0.75rem;
     }
 
     #publicationModal .abstract-container {
@@ -598,25 +694,30 @@
     }
 
     #publicationModal #modalAbstract {
-      font-size: 0.5625rem;
+      font-size: 0.7rem;
       line-height: 1.4;
-      max-height: 120px;
+      max-height: 150px;
     }
 
     #publicationModal .modal-footer {
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem 1rem;
     }
 
-    #publicationModal #modalImage {
-      max-height: 180px !important;
+    .publication-modal-image {
+      max-height: 250px !important;
     }
   }
 
   @media (max-width: 400px) {
     #publicationModal .modal-body {
-      padding-bottom: 0.5rem;
-      overflow-y: visible;
+      padding-bottom: 1rem;
+      overflow-y: visible !important;
+      overflow: visible !important;
       max-height: none;
+    }
+
+    #publicationModal .abstract-container {
+      margin-bottom: 0.75rem;
     }
 
     #publicationModal .abstract-container {
@@ -624,17 +725,17 @@
     }
 
     #publicationModal #modalAbstract {
-      font-size: 0.5rem;
+      font-size: 0.65rem;
       line-height: 1.35;
-      max-height: 100px;
+      max-height: 120px;
     }
 
     #publicationModal .modal-footer {
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem 1rem;
     }
 
-    #publicationModal #modalImage {
-      max-height: 150px !important;
+    .publication-modal-image {
+      max-height: 200px !important;
     }
   }
 
@@ -719,29 +820,31 @@
     transform: scale(1.05);
   }
 
-  /* Mobile Layout (Compact) */
+  /* Mobile Layout (Book-like) */
   @media (max-width: 767.98px) {
     .publication-item .card-body {
-      padding: 0.5rem;
+      padding: 1rem;
     }
 
     .publication-item {
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .publication-item .card {
-      border-radius: 6px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .publication-thumbnail-mobile {
       flex-shrink: 0;
-      border-radius: 4px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     .publication-item .card-title {
-      font-size: 0.85rem;
-      line-height: 1.2;
-      margin-bottom: 0.25rem !important;
+      font-size: 0.9rem;
+      line-height: 1.3;
+      margin-bottom: 0.5rem !important;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
@@ -749,55 +852,73 @@
       overflow: hidden;
     }
 
-    .publication-item .publication-badges {
-      display: flex;
-      flex-wrap: nowrap;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .publication-item .badge {
-      font-size: 0.55rem;
-      padding: 0.1rem 0.3rem;
-      line-height: 1.1;
-      margin-bottom: 0 !important;
-      white-space: nowrap;
-    }
-
-    .publication-item .badge i {
-      font-size: 0.6rem;
-    }
-
     .publication-item .card-text {
-      font-size: 0.75rem;
-      line-height: 1.3;
-      margin-bottom: 0;
-      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
     }
 
-    .publication-item .btn-sm {
-      font-size: 0.65rem;
-      padding: 0.25rem 0.5rem;
-      white-space: nowrap;
-      line-height: 1.2;
+    .share-publication-btn:hover,
+    .share-publication-btn:active {
+      background-color: #f8f9fa !important;
+      transform: scale(0.98);
+      transition: all 0.2s ease;
     }
 
-    .publication-item .btn-sm i {
-      font-size: 0.7rem;
+    .download-publication-btn:hover,
+    .download-publication-btn:active {
+      background-color: #f8f9fa !important;
+      transform: scale(0.98);
+      transition: all 0.2s ease;
     }
 
-    .publication-item .col-auto:last-child {
-      display: flex;
-      align-items: center;
+    .publication-item .btn-light:hover {
+      background-color: #f8f9fa !important;
     }
 
-    .publication-item .d-flex.flex-column {
-      min-width: 80px;
+    /* Publication Action Buttons - Same size for all */
+    .publication-action-buttons {
+      margin-top: 0.75rem;
     }
 
-    .publication-item .row.g-1 {
-      --bs-gutter-x: 0.5rem;
-      --bs-gutter-y: 0.5rem;
+    .publication-action-btn {
+      border-radius: 0.5rem !important;
+      padding: 0.5rem !important;
+      min-height: 60px !important;
+      height: 60px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background-color: #f8f9fa !important;
+      border: 1px solid #e9ecef !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .publication-action-icon {
+      font-size: 1.2rem !important;
+      color: #0d6efd !important;
+      margin-bottom: 0.25rem !important;
+      line-height: 1 !important;
+    }
+
+    .publication-action-text {
+      color: #0d6efd !important;
+      font-weight: 500 !important;
+      font-size: 0.75rem !important;
+      line-height: 1 !important;
+    }
+
+    .publication-action-btn:hover,
+    .publication-action-btn:active,
+    .publication-action-btn:focus {
+      background-color: #e9ecef !important;
+      transform: scale(0.98);
+      border-color: #dee2e6 !important;
+    }
+
+    .publication-action-btn:active {
+      transform: scale(0.96);
     }
   }
 
@@ -1296,7 +1417,41 @@
 
     const modal = new bootstrap.Modal(document.getElementById("publicationModal"));
     modal.show();
+
+    // Update share button data
+    const shareBtn = document.querySelector('.share-publication-modal-btn');
+    if (shareBtn) {
+      shareBtn.dataset.pubTitle = pub.title || 'Publikasi';
+      shareBtn.dataset.pubUrl = window.location.href;
+    }
   }
+
+  // Share publication from modal
+  document.addEventListener('DOMContentLoaded', function() {
+    const shareModalBtn = document.querySelector('.share-publication-modal-btn');
+    if (shareModalBtn) {
+      shareModalBtn.addEventListener('click', function() {
+        const pubTitle = this.dataset.pubTitle || 'Publikasi';
+        const pubUrl = this.dataset.pubUrl || window.location.href;
+        
+        // Check if Web Share API is available (mobile browsers)
+        if (navigator.share) {
+          navigator.share({
+            title: pubTitle,
+            text: 'Lihat publikasi ini: ' + pubTitle,
+            url: pubUrl
+          }).catch(err => {
+            console.log('Error sharing:', err);
+            // Fallback to copy to clipboard
+            copyToClipboard(pubUrl, pubTitle);
+          });
+        } else {
+          // Fallback: copy to clipboard
+          copyToClipboard(pubUrl, pubTitle);
+        }
+      });
+    }
+  });
 
   // Refresh data - Reload dari database
   function refreshData() {
@@ -1650,5 +1805,89 @@
   // Make functions available globally
   window.broadcastBookmarkChange = broadcastBookmarkChange;
   window.syncBookmarkButtons = syncBookmarkButtons;
+
+  // Share publication functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const shareButtons = document.querySelectorAll('.share-publication-btn');
+    shareButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const pubTitle = this.dataset.pubTitle || 'Publikasi';
+        const pubUrl = this.dataset.pubUrl || window.location.href;
+        
+        // Check if Web Share API is available (mobile browsers)
+        if (navigator.share) {
+          navigator.share({
+            title: pubTitle,
+            text: 'Lihat publikasi ini: ' + pubTitle,
+            url: pubUrl
+          }).catch(err => {
+            console.log('Error sharing:', err);
+            // Fallback to copy to clipboard
+            copyToClipboard(pubUrl, pubTitle);
+          });
+        } else {
+          // Fallback: copy to clipboard
+          copyToClipboard(pubUrl, pubTitle);
+        }
+      });
+    });
+  });
+
+  function copyToClipboard(text, title) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show toast notification
+        showToast('Link publikasi "' + title + '" telah disalin ke clipboard');
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        // Fallback for older browsers
+        fallbackCopyToClipboard(text, title);
+      });
+    } else {
+      fallbackCopyToClipboard(text, title);
+    }
+  }
+
+  function fallbackCopyToClipboard(text, title) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      document.execCommand('copy');
+      showToast('Link publikasi "' + title + '" telah disalin ke clipboard');
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      alert('Tidak dapat menyalin link. Silakan salin manual: ' + text);
+    }
+    
+    document.body.removeChild(textArea);
+  }
+
+  function showToast(message) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = message;
+    toast.style.cssText = 'position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 8px; z-index: 10000; font-size: 0.875rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+    
+    document.body.appendChild(toast);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+  }
 </script>
 {% endblock %}
