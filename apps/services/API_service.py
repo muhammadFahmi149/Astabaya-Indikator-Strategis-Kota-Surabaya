@@ -2463,7 +2463,19 @@ class KemiskinanSurabayaService:
                 'https://www.googleapis.com/auth/spreadsheets',
                 'https://www.googleapis.com/auth/drive'
             ]
-            credentials = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+            if "GOOGLE_CREDENTIALS_JSON" in os.environ:
+                print("[INFO] Using Google credentials from ENV (Railway)")
+                
+                creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+                credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+                    creds_dict, scope
+                )
+            else:
+                print("[INFO] Using local credentials.json")
+                
+                credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                    "credentials.json", scope
+                )
             client = gspread.authorize(credentials)
 
             SHEET_ID = "1keS9YFYO1qzAawWgLh2U2pY6xX5ppKUnhbdHQYfU5HM"
